@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Prompt Palette Prototype v8.0</title>
+<title>Prompt Palette Prototype v8.0.1</title>
 <style>
 :root{
   --paper:#fffaf7; --ink:#7e63b2; --ink-soft:#9c7bc8;
@@ -1569,6 +1569,7 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px rgba(182,140,201,.1
 }
 .char-card .heart{font-size:21px!important;top:10px!important;right:10px!important;z-index:4;padding:8px!important;min-width:44px!important;min-height:44px!important;display:grid!important;place-items:center!important}
 .form-textarea{min-height:92px;resize:vertical;line-height:1.5}
+#characterFormView #characterBasePromptInput{min-height:14.5rem}
 .prompt-textarea{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
 .favorite-check{display:flex;align-items:center;gap:9px;min-height:44px;font-size:13px;font-weight:800;margin:4px 0 10px}
 .favorite-check input{width:20px;height:20px;accent-color:#a986c3}
@@ -1692,7 +1693,7 @@ body.preset-edit-mode #overwriteBtn{min-width:112px}
 
 </style>
 </head>
-<body data-prototype-version="8.0" data-master-version="7">
+<body data-prototype-version="8.0.1" data-master-version="7">
 
 <div class="app" id="app">
   <section id="topView" class="view active">
