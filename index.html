@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Prompt Palette Prototype v7.7</title>
+<title>Prompt Palette Prototype v8.0</title>
 <style>
 :root{
   --paper:#fffaf7; --ink:#7e63b2; --ink-soft:#9c7bc8;
@@ -80,7 +80,7 @@ body{margin:0;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hir
 .save-inline-row{display:grid;grid-template-columns:1fr 86px;gap:8px;align-items:center}
 .save-inline-input{width:100%;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:16px;padding:10px 12px;outline:none;font-weight:760}
 .save-inline-row .button{height:42px;padding:8px 10px}
-.preview-line{display:grid;grid-template-columns:96px 96px 1fr;gap:8px;align-items:baseline;padding:5px 0;border-bottom:1px dashed var(--line)}
+.preview-line{display:grid;grid-template-columns:72px minmax(120px,1.15fr) minmax(90px,1fr);gap:8px;align-items:baseline;padding:5px 0;border-bottom:1px dashed var(--line)}
 .preview-line:last-child{border-bottom:0}
 .cat-label{font-size:10px;font-weight:900;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .jp{font-size:12px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1588,6 +1588,9 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px rgba(182,140,201,.1
 .dialog-card{width:min(100%,360px);padding:18px;border-radius:22px;background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.7);box-shadow:0 20px 50px rgba(48,38,64,.24);backdrop-filter:blur(20px)}
 .dialog-card h2{font-size:17px;margin:0 0 8px}.dialog-card p{font-size:13px;line-height:1.6;margin:0 0 16px}.dialog-actions{display:flex;gap:8px}.dialog-actions>*{flex:1}.button.danger{color:white!important;background:var(--danger)!important;border-color:transparent!important}
 .library-search-wrap{position:relative}.library-search-wrap .search{padding-right:48px}.search-clear-x{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:42px;border:0;background:transparent!important;box-shadow:none!important;font-size:21px;color:var(--ink-soft)}
+.tag-search-wrap{position:relative;border-radius:18px;overflow:hidden}
+.tag-search-wrap .search{padding-right:48px}
+.tag-search-wrap .search-clear-x{right:4px;top:50%;transform:translateY(-50%);width:42px;height:42px;min-width:42px;min-height:42px;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;-webkit-appearance:none;appearance:none;font-size:21px!important}
 .preset-count{text-align:left;margin:8px 3px 10px;color:var(--ink-soft);font-size:11px;font-weight:750}
 .empty-state{text-align:center;padding:24px 14px;line-height:1.7;font-size:13px}
 body.preset-edit-mode #saveBtn,body.preset-edit-mode #negativeCard,body.preset-edit-mode #previewDock{display:none!important}
@@ -1666,9 +1669,30 @@ body.preset-edit-mode #overwriteBtn{min-width:112px}
 .applied-preset-chip .remove{display:grid;place-items:center;width:28px;height:28px;min-width:28px;border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important;color:var(--ink-soft)}
 @media(max-width:430px){.preset-load-head{align-items:stretch}.preset-load-head strong{flex-basis:100%}.preset-load-select{flex-basis:calc(100% - 76px)}}
 
+/* v8.0 LocalStorage Character CRUD */
+.character-empty{grid-column:1/-1;padding:28px 16px;text-align:center;line-height:1.7}
+.character-empty p{margin:0 0 16px;color:var(--ink-soft);font-size:13px}
+.character-add-card{min-height:174px;border:1px dashed var(--line);border-radius:20px;background:rgba(255,255,255,.48);color:var(--ink);font-size:13px;font-weight:900;display:grid;place-items:center;padding:14px}
+.character-add-card:active{transform:scale(.99)}
+.char-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.char-icon{font-size:42px;line-height:1}
+.field-error{display:none;margin:-5px 4px 10px;color:var(--danger);font-size:11px;font-weight:800}
+.field-error.show{display:block}
+.input.error{border-color:var(--danger)!important;box-shadow:0 0 0 3px rgba(190,89,111,.12)!important}
+.character-delete-zone{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.character-switch-wrap{display:flex;justify-content:center;margin:2px 0 10px}
+.character-switch{max-width:100%;min-height:38px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.72);color:var(--ink);padding:7px 12px;font-weight:850;display:inline-flex;align-items:center;gap:7px;box-shadow:0 5px 14px rgba(102,76,150,.07)}
+.character-switch-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px}
+.character-picker-list{display:flex;flex-direction:column;gap:8px;max-height:52vh;overflow:auto}
+.character-picker-option{width:100%;min-height:50px;border:1px solid var(--line);border-radius:16px;background:#fff;color:var(--ink);padding:10px 12px;text-align:left;font-size:13px;font-weight:850;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.character-picker-option.active{background:linear-gradient(135deg,var(--fill-soft),#fff);border-color:var(--fill)}
+.character-picker-label{min-width:0;display:flex;align-items:center;gap:9px}.character-picker-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.button:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:360px){.character-switch-name{max-width:215px}.character-empty{padding:22px 12px}}
+
 </style>
 </head>
-<body data-prototype-version="7.6" data-master-version="6">
+<body data-prototype-version="8.0" data-master-version="7">
 
 <div class="app" id="app">
   <section id="topView" class="view active">
@@ -1735,6 +1759,11 @@ body.preset-edit-mode #overwriteBtn{min-width:112px}
         <h1 class="page-title-center" id="builderPageTitle">プロンプト編集</h1>
       </div>
       <p class="builder-subtitle" id="builderPresetName"></p>
+      <div class="character-switch-wrap" id="characterSwitchWrap">
+        <button class="character-switch" id="characterSwitchButton" type="button" aria-haspopup="dialog">
+          <span id="builderCharacterIcon">✨</span><span class="character-switch-name" id="builderCharacterName"></span><span aria-hidden="true">⌄</span>
+        </button>
+      </div>
 
       <section class="preset-load-card card" id="presetLoadCard">
         <div class="preset-load-head">
@@ -1744,7 +1773,10 @@ body.preset-edit-mode #overwriteBtn{min-width:112px}
         </div>
         <div class="applied-presets" id="appliedPresets" aria-label="適用済みプリセット"></div>
       </section>
-      <input id="search" class="search" placeholder="タグ検索：笑顔 / smile / 光…" />
+      <div class="tag-search-wrap">
+        <input id="search" class="search" placeholder="タグ検索：笑顔 / smile / 光…" />
+        <button id="tagSearchClear" class="search-clear-x" type="button" aria-label="タグ検索を解除" style="display:none">×</button>
+      </div>
       <p class="meta" id="meta"></p>
       <div id="categoryRoot"></div>
 
@@ -1775,24 +1807,30 @@ body.preset-edit-mode #overwriteBtn{min-width:112px}
   <section id="characterFormView" class="view">
     <main class="main">
       <div class="page-topbar centered">
-        <button class="small-btn back-btn" onclick="goHome()">← Home</button>
-        <h1 class="page-title-center">キャラクター設定</h1>
+        <button class="small-btn back-btn" id="characterFormBackBtn">← Home</button>
+        <h1 class="page-title-center" id="characterFormTitle">Character設定</h1>
       </div>
       <div class="card character-form-card">
-        <label class="sheet-label" for="characterNameInput">キャラクター名</label>
+        <label class="sheet-label" for="characterNameInput">Character名</label>
         <input id="characterNameInput" class="input" />
-        <label class="sheet-label" for="characterDescriptionInput">説明</label>
-        <textarea id="characterDescriptionInput" class="input form-textarea"></textarea>
-        <label class="sheet-label" for="characterBasePromptInput">Character Base Prompt</label>
+        <p class="field-error" id="characterNameError">Character名を入力してください</p>
+        <label class="sheet-label" for="characterIconInput">表示アイコン</label>
+        <input id="characterIconInput" class="input" placeholder="✨" />
+        <label class="sheet-label" for="characterBasePromptInput">Positive Prompt</label>
         <textarea id="characterBasePromptInput" class="input form-textarea prompt-textarea"></textarea>
         <label class="sheet-label" for="characterNegativePromptInput">Negative Prompt</label>
         <textarea id="characterNegativePromptInput" class="input form-textarea prompt-textarea"></textarea>
+        <label class="sheet-label" for="characterDescriptionInput">説明</label>
+        <textarea id="characterDescriptionInput" class="input form-textarea"></textarea>
         <label class="sheet-label" for="characterMemoInput">Memo</label>
         <textarea id="characterMemoInput" class="input form-textarea"></textarea>
         <label class="favorite-check"><input type="checkbox" id="characterFavoriteInput"> Favorite Character</label>
         <div class="row form-actions">
-          <button class="button" onclick="goHome()">キャンセル</button>
+          <button class="button" id="cancelCharacterBtn">キャンセル</button>
           <button class="button primary" id="saveCharacterBtn">保存</button>
+        </div>
+        <div class="character-delete-zone" id="characterDeleteZone" style="display:none">
+          <button class="button danger full" id="deleteCharacterBtn">Characterを削除</button>
         </div>
       </div>
     </main>
@@ -1855,6 +1893,25 @@ body.preset-edit-mode #overwriteBtn{min-width:112px}
 </div>
 <div class="toast" id="toast">コピーしました</div>
 
+<div class="modal-bg" id="characterPickerModal">
+  <div class="sheet">
+    <h2>Characterを選択</h2>
+    <div class="character-picker-list" id="characterPickerList"></div>
+    <button class="button full" id="closeCharacterPicker" style="margin-top:10px">閉じる</button>
+  </div>
+</div>
+
+<div class="dialog-bg" id="deleteCharacterDialog">
+  <div class="dialog-card">
+    <h2>Characterを削除しますか？</h2>
+    <p>「<span id="deleteCharacterName"></span>」を削除します。<br>この操作は元に戻せません。</p>
+    <div class="dialog-actions">
+      <button class="button" id="deleteCharacterCancel">キャンセル</button>
+      <button class="button danger" id="deleteCharacterConfirm">削除</button>
+    </div>
+  </div>
+</div>
+
 <div class="preset-menu" id="presetMenu" style="display:none">
   <button id="presetMenuEdit">編集</button>
   <button id="presetMenuDelete" class="danger">削除</button>
@@ -1900,8 +1957,7 @@ const FIXED_PROMPT_HEADER = "masterpiece, best quality, very aesthetic, absurdre
 const STORAGE = {
   myPresets:"promptPalette.v7_5.myPresets",
   presetFavorites:"promptPalette.v7_5.presetFavorites",
-  characterOverrides:"promptPalette.v7_5.characterOverrides",
-  characterFavorites:"promptPalette.v7_5.characterFavorites",
+  characters:"promptPalette.v7_5.characters",
   selectedCharacterId:"promptPalette.v7_5.selectedCharacterId",
   fixedPreview:"promptPalette.v7_5.fixedPreview"
 };
@@ -1916,10 +1972,11 @@ let builderMode = "prompt";
 let editingPresetId = null;
 let menuPresetId = null;
 let deleteTargetId = null;
-let currentCharacter = CHARACTERS[0];
+let characterFormMode = "edit";
+let characterFormTargetId = null;
+let currentCharacter = null;
 let PRESET_FAVORITES = loadJSON(STORAGE.presetFavorites,{});
-let CHARACTER_OVERRIDES = loadJSON(STORAGE.characterOverrides,{});
-let CHARACTER_FAVORITES = loadJSON(STORAGE.characterFavorites,{});
+let characters = loadCharacters();
 let MY_PRESETS = loadJSON(STORAGE.myPresets,null);
 if(!Array.isArray(MY_PRESETS)){
   MY_PRESETS=DEMO_MY_PRESETS;
@@ -1928,12 +1985,37 @@ if(!Array.isArray(MY_PRESETS)){
 
 const $ = id=>document.getElementById(id);
 function loadJSON(key,fallback){try{const v=localStorage.getItem(key);return v===null?fallback:JSON.parse(v)}catch(_){return fallback}}
-function saveJSON(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch(_){}}
+function saveJSON(key,value){try{localStorage.setItem(key,JSON.stringify(value));return true}catch(_){return false}}
+function cleanString(value){return typeof value==="string"?value.trim():""}
+function loadCharacters(){
+  let raw;
+  try{const saved=localStorage.getItem(STORAGE.characters);if(saved===null)return [];raw=JSON.parse(saved)}catch(_){return []}
+  if(!Array.isArray(raw))return [];
+  const ids=new Set(),valid=[];
+  raw.forEach(item=>{
+    if(!item||typeof item!=="object")return;
+    const id=cleanString(item.id),displayName=cleanString(item.displayName);
+    if(!id||!displayName||ids.has(id))return;
+    ids.add(id);valid.push({
+      id,displayName,icon:cleanString(item.icon)||"✨",basePrompt:cleanString(item.basePrompt),negativePrompt:cleanString(item.negativePrompt),
+      shortDescription:cleanString(item.shortDescription),memo:cleanString(item.memo),favorite:typeof item.favorite==="boolean"?item.favorite:false,
+      createdAt:typeof item.createdAt==="string"?item.createdAt.trim():"",updatedAt:typeof item.updatedAt==="string"?item.updatedAt.trim():""
+    });
+  });
+  return valid;
+}
+function saveCharacters(next){return saveJSON(STORAGE.characters,next)}
+function createCharacterId(){
+  try{if(globalThis.crypto?.randomUUID)return `char_${crypto.randomUUID()}`}catch(_){}
+  return `char_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,12)}`;
+}
+function setSelectedCharacter(id){
+  if(!id){try{localStorage.removeItem(STORAGE.selectedCharacterId)}catch(_){};return}
+  saveJSON(STORAGE.selectedCharacterId,id);
+}
 function normalize(v){return String(v||"").toLowerCase().trim()}
 function theme(id){return THEMES.find(t=>t.id===id)||THEMES[0]}
-function characterById(id){return CHARACTERS.find(c=>c.id===id)||CHARACTERS[0]}
-function effectiveCharacter(ch){return {...ch,...(CHARACTER_OVERRIDES[ch.id]||{}),favorite:characterFavorite(ch)}}
-function characterFavorite(ch){return Object.prototype.hasOwnProperty.call(CHARACTER_FAVORITES,ch.id)?Boolean(CHARACTER_FAVORITES[ch.id]):Boolean(ch.favorite)}
+function characterById(id){return characters.find(c=>c.id===id)||null}
 function allPresets(){
   return [...INITIAL_PRESETS,...MY_PRESETS].map(p=>({...p,favorite:Object.prototype.hasOwnProperty.call(PRESET_FAVORITES,p.id)?Boolean(PRESET_FAVORITES[p.id]):Boolean(p.favorite)}));
 }
@@ -1948,28 +2030,89 @@ function show(view){
   closePresetMenu();window.scrollTo({top:0,behavior:"auto"});
 }
 function goTop(){builderMode="prompt";editingPresetId=null;document.body.classList.remove("preset-edit-mode");renderTop();show("topView")}
-function goHome(){builderMode="prompt";editingPresetId=null;document.body.classList.remove("preset-edit-mode");renderHome();show("homeView")}
-function goCharacterForm(){renderCharacterForm();show("characterFormView")}
-function goEdit(){builderMode="prompt";editingPresetId=null;document.body.classList.remove("preset-edit-mode");$("builderPageTitle").textContent="プロンプト編集";$("builderBackBtn").textContent="← Home";$("builderPresetName").textContent="";renderEdit();show("editView");setPreviewMode(fixedPreview)}
+function goHome(){
+  if(!currentCharacter||!characterById(currentCharacter.id)){currentCharacter=null;setSelectedCharacter(null);goTop();return false}
+  builderMode="prompt";editingPresetId=null;document.body.classList.remove("preset-edit-mode");renderHome();show("homeView");return true
+}
+function goCharacterForm(mode="edit",id=currentCharacter?.id){
+  characterFormMode=mode;characterFormTargetId=mode==="create"?null:id;
+  if(mode==="edit"&&!characterById(characterFormTargetId)){goTop();return}
+  renderCharacterForm();show("characterFormView")
+}
+function leaveCharacterForm(){characterFormMode==="create"?goTop():goHome()}
+function goEdit(){
+  if(!currentCharacter||!characterById(currentCharacter.id)){currentCharacter=null;setSelectedCharacter(null);goTop();showToast("Characterが見つかりませんでした");return}
+  builderMode="prompt";editingPresetId=null;document.body.classList.remove("preset-edit-mode");$("builderPageTitle").textContent="プロンプト編集";$("builderBackBtn").textContent="← Home";$("builderPresetName").textContent="";renderEdit();show("editView");setPreviewMode(fixedPreview)
+}
 function builderBack(){if(builderMode==="preset"){editingPresetId=null;builderMode="prompt";document.body.classList.remove("preset-edit-mode");goPresetLibrary(libraryOrigin)}else goHome()}
 function goPresetLibrary(origin){libraryOrigin=origin||libraryOrigin;$("libraryBackBtn").textContent=libraryOrigin==="characterHome"?"← Home":"← Top";renderPresetLibrary();show("presetLibraryView")}
 function backFromPresetLibrary(){libraryOrigin==="characterHome"?goHome():goTop()}
 
-function charEmoji(ch){return ch.id==="yuan"?"🪻":ch.id==="toki"?"🖤":"🌧️"}
+function charEmoji(ch){return cleanString(ch?.icon)||"✨"}
 function renderTop(){
-  const chars=CHARACTERS.filter(c=>!c.hidden).sort((a,b)=>a.sortOrder-b.sortOrder);
+  const chars=[...characters.filter(c=>c.favorite),...characters.filter(c=>!c.favorite)];
   $("charCount").textContent=`${chars.length} chars`;
-  $("charGrid").innerHTML=chars.map(raw=>{const ch=effectiveCharacter(raw),th=theme(ch.themeId).colors;const heart=ch.favorite?`<button type="button" class="heart active" aria-label="Favoriteを解除" onclick="event.stopPropagation();toggleCharacterFavorite('${ch.id}',false)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg></button>`:"";return `<div class="char-card" role="button" tabindex="0" style="--line:${th.line};--thumb-start:${th.thumbnailStart};--thumb-end:${th.thumbnailEnd};--thumb-accent:${th.thumbnailAccent};--fill-soft:${th.fillSoft};--ink:${th.ink}" onclick="selectCharacter('${ch.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectCharacter('${ch.id}')}"><div class="char-thumb">${charEmoji(ch)}${heart}</div><div class="char-name">${escapeHTML(ch.displayName)}</div></div>`}).join("");
+  const grid=$("charGrid");grid.innerHTML="";
+  if(!chars.length){
+    const empty=document.createElement("div");empty.className="character-empty";empty.innerHTML="<p>まだCharacterがありません。<br>最初のCharacterを追加して、パレットを始めよう。</p>";
+    const add=document.createElement("button");add.className="button primary";add.textContent="＋ Characterを追加";add.onclick=()=>goCharacterForm("create");empty.appendChild(add);grid.appendChild(empty);return;
+  }
+  chars.forEach(ch=>{
+    const card=document.createElement("div");card.className="char-card";card.role="button";card.tabIndex=0;
+    const thumb=document.createElement("div");thumb.className="char-thumb";const icon=document.createElement("span");icon.className="char-icon";icon.textContent=charEmoji(ch);thumb.appendChild(icon);
+    const heart=document.createElement("button");heart.type="button";heart.className=`heart${ch.favorite?" active":""}`;heart.setAttribute("aria-label",ch.favorite?"Favoriteを解除":"Favoriteに追加");heart.textContent=ch.favorite?"♥":"♡";heart.onclick=event=>{event.stopPropagation();toggleCharacterFavorite(ch.id,!ch.favorite)};thumb.appendChild(heart);
+    const name=document.createElement("div");name.className="char-name";name.textContent=ch.displayName;card.append(thumb,name);card.onclick=()=>selectCharacter(ch.id);card.onkeydown=event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();selectCharacter(ch.id)}};grid.appendChild(card);
+  });
+  const add=document.createElement("button");add.className="character-add-card";add.textContent="＋ Character追加";add.onclick=()=>goCharacterForm("create");grid.appendChild(add);
 }
-function selectCharacter(id){currentCharacter=effectiveCharacter(characterById(id));saveJSON(STORAGE.selectedCharacterId,id);applyTheme(currentCharacter.themeId);goHome()}
-function toggleCharacterFavorite(id,value){CHARACTER_FAVORITES[id]=Boolean(value);saveJSON(STORAGE.characterFavorites,CHARACTER_FAVORITES);if(currentCharacter.id===id)currentCharacter=effectiveCharacter(characterById(id));renderTop()}
+function selectCharacter(id){const ch=characterById(id);if(!ch){goTop();return}currentCharacter=ch;setSelectedCharacter(id);applyTheme();goHome()}
+function toggleCharacterFavorite(id,value){
+  const index=characters.findIndex(ch=>ch.id===id);if(index<0)return;
+  const next=characters.map((ch,i)=>i===index?{...ch,favorite:Boolean(value),updatedAt:new Date().toISOString()}:ch);
+  if(!saveCharacters(next)){showToast("Characterを保存できませんでした");return}
+  characters=next;if(currentCharacter?.id===id)currentCharacter=characterById(id);renderTop()
+}
 function renderHome(){
-  currentCharacter=effectiveCharacter(characterById(currentCharacter.id));applyTheme(currentCharacter.themeId);$("bigName").textContent=currentCharacter.displayName;$("charDesc").textContent=currentCharacter.shortDescription;$("memo").textContent=currentCharacter.memo||"";$("heroImg").textContent=charEmoji(currentCharacter);
+  const ch=characterById(currentCharacter?.id);if(!ch){goTop();return}currentCharacter=ch;applyTheme();$("bigName").textContent=ch.displayName;$("charDesc").textContent=ch.shortDescription;$("memo").textContent=ch.memo||"";$("heroImg").textContent=charEmoji(ch);
   const favs=allPresets().filter(p=>!p.hidden&&p.favorite).sort(sortPresets);
   $("presetRow").innerHTML=favs.map(p=>`<button class="preset" onclick="loadPreset('${p.id}')">${escapeHTML(p.displayName)}<br><span class="meta">${p.tagIds.length} tags</span></button>`).join("")||'<span class="meta">Favorite Presetはまだありません。</span>';
 }
-function renderCharacterForm(){const ch=effectiveCharacter(characterById(currentCharacter.id));$("characterNameInput").value=ch.displayName||"";$("characterDescriptionInput").value=ch.shortDescription||"";$("characterBasePromptInput").value=ch.basePrompt||"";$("characterNegativePromptInput").value=ch.negativePrompt||"";$("characterMemoInput").value=ch.memo||"";$("characterFavoriteInput").checked=Boolean(ch.favorite)}
-function saveCharacterForm(){const id=currentCharacter.id;CHARACTER_OVERRIDES[id]={...(CHARACTER_OVERRIDES[id]||{}),displayName:$("characterNameInput").value.trim()||characterById(id).displayName,shortDescription:$("characterDescriptionInput").value.trim(),basePrompt:$("characterBasePromptInput").value.trim(),negativePrompt:$("characterNegativePromptInput").value.trim(),memo:$("characterMemoInput").value.trim()};CHARACTER_FAVORITES[id]=$("characterFavoriteInput").checked;saveJSON(STORAGE.characterOverrides,CHARACTER_OVERRIDES);saveJSON(STORAGE.characterFavorites,CHARACTER_FAVORITES);currentCharacter=effectiveCharacter(characterById(id));showToast("キャラクター設定を保存しました");goHome()}
+function setCharacterNameError(showError){$("characterNameInput").classList.toggle("error",showError);$("characterNameError").classList.toggle("show",showError)}
+function renderCharacterForm(){
+  const create=characterFormMode==="create",ch=create?null:characterById(characterFormTargetId);if(!create&&!ch){goTop();return}
+  $("characterFormTitle").textContent=create?"Character追加":"Character設定";$("characterFormBackBtn").textContent=create?"← Top":"← Home";$("saveCharacterBtn").textContent=create?"Characterを追加":"保存";$("characterDeleteZone").style.display=create?"none":"block";
+  $("characterNameInput").value=ch?.displayName||"";$("characterIconInput").value=create?"":ch?.icon||"";$("characterBasePromptInput").value=ch?.basePrompt||"";$("characterNegativePromptInput").value=ch?.negativePrompt||"";$("characterDescriptionInput").value=ch?.shortDescription||"";$("characterMemoInput").value=ch?.memo||"";$("characterFavoriteInput").checked=Boolean(ch?.favorite);setCharacterNameError(false)
+}
+function characterFormValues(){return {displayName:$("characterNameInput").value.trim(),icon:$("characterIconInput").value.trim()||"✨",basePrompt:$("characterBasePromptInput").value.trim(),negativePrompt:$("characterNegativePromptInput").value.trim(),shortDescription:$("characterDescriptionInput").value.trim(),memo:$("characterMemoInput").value.trim(),favorite:$("characterFavoriteInput").checked}}
+function saveCharacterForm(){
+  const values=characterFormValues();if(!values.displayName){setCharacterNameError(true);$("characterNameInput").focus();return}setCharacterNameError(false);
+  const now=new Date().toISOString();
+  if(characterFormMode==="create"){
+    const ch={id:createCharacterId(),...values,createdAt:now,updatedAt:now},next=[...characters,ch];
+    if(!saveCharacters(next)){showToast("Characterを保存できませんでした");return}
+    characters=next;currentCharacter=ch;setSelectedCharacter(ch.id);goHome();showToast("Characterを追加しました");return;
+  }
+  const index=characters.findIndex(ch=>ch.id===characterFormTargetId);if(index<0){goTop();return}
+  const ch={...characters[index],...values,id:characters[index].id,createdAt:characters[index].createdAt,updatedAt:now},next=characters.map((item,i)=>i===index?ch:item);
+  if(!saveCharacters(next)){showToast("Characterを保存できませんでした");return}
+  characters=next;currentCharacter=ch;setSelectedCharacter(ch.id);goHome();showToast("Character設定を保存しました")
+}
+function openCharacterPicker(){
+  if(builderMode!=="prompt"||!currentCharacter)return;
+  const root=$("characterPickerList");root.innerHTML="";
+  characters.forEach(ch=>{const btn=document.createElement("button");btn.type="button";btn.className=`character-picker-option${ch.id===currentCharacter.id?" active":""}`;const label=document.createElement("span");label.className="character-picker-label";const icon=document.createElement("span");icon.textContent=charEmoji(ch);const name=document.createElement("span");name.className="character-picker-name";name.textContent=ch.displayName;label.append(icon,name);btn.append(label);if(ch.id===currentCharacter.id){const mark=document.createElement("span");mark.textContent="✓";btn.appendChild(mark)}btn.onclick=()=>switchBuilderCharacter(ch.id);root.appendChild(btn)});
+  $("characterPickerModal").classList.add("show")
+}
+function switchBuilderCharacter(id){
+  const ch=characterById(id);if(!ch){$("characterPickerModal").classList.remove("show");goTop();showToast("Characterが見つかりませんでした");return}
+  currentCharacter=ch;setSelectedCharacter(id);$("characterPickerModal").classList.remove("show");applyTheme();renderEdit($("search").value.trim())
+}
+function openDeleteCharacter(){const ch=characterById(characterFormTargetId);if(!ch){goTop();return}$("deleteCharacterName").textContent=ch.displayName;$("deleteCharacterDialog").classList.add("show")}
+function confirmDeleteCharacter(){
+  const id=characterFormTargetId;if(!characterById(id)){goTop();return}const next=characters.filter(ch=>ch.id!==id);
+  if(!saveCharacters(next)){showToast("Characterを保存できませんでした");return}
+  characters=next;currentCharacter=null;setSelectedCharacter(null);characterFormTargetId=null;$("deleteCharacterDialog").classList.remove("show");goTop();showToast("Characterを削除しました")
+}
 function applyTagId(tagId){
   const tag=TAGS.find(item=>item.id===tagId);if(!tag)return false;
   if(tag.selectionRule==="single"||tag.selectionRule==="exclusive"){
@@ -2034,11 +2177,15 @@ function listText(v){return Array.isArray(v)?v.join(", "):String(v||"")}
 function matchesSearch(tag,q){if(!q)return true;const hay=[tag.displayNameJa,tag.tag,tag.description,tag.categoryName,tag.subcategoryName,listText(tag.searchKeywordsJa),listText(tag.aliases),listText(tag.relatedTags)].map(normalize).join(" ");return hay.includes(normalize(q))}
 function selectedCountForCategory(cid){return TAGS.filter(t=>t.categoryId===cid&&state.has(t.id)).length}
 function groupedTags(q=""){const groups=new Map();[...CATEGORIES].sort((a,b)=>(a.uiOrder||a.sortOrder)-(b.uiOrder||b.sortOrder)).forEach(cat=>{if(!cat.hidden)groups.set(cat.categoryId,{category:cat,subgroups:new Map(),count:0})});TAGS.forEach(tag=>{if(tag.hidden||!matchesSearch(tag,q))return;const cg=groups.get(tag.categoryId);if(!cg)return;if(!cg.subgroups.has(tag.subcategoryId))cg.subgroups.set(tag.subcategoryId,{subcategoryName:tag.subcategoryName,tags:[]});cg.subgroups.get(tag.subcategoryId).tags.push(tag);cg.count++});return [...groups.values()].filter(g=>g.count>0)}
-function renderEdit(q=""){applyTheme(currentCharacter.themeId);renderPresetLoader();$("presetLoadCard").style.display=builderMode==="prompt"?"block":"none";$("meta").textContent=`${TAGS.length} tags / ${CATEGORIES.length} categories`;$("categoryRoot").innerHTML="";groupedTags(q).forEach(group=>{const cid=group.category.categoryId;const sec=document.createElement("section");sec.className="category"+(openCategories.has(cid)||q?" open":"");const head=document.createElement("button");head.className="cat-head";head.innerHTML=`<span>${group.category.categoryName}</span><span class="cat-count">${selectedCountForCategory(cid)} selected ${sec.classList.contains("open")?"▲":"▼"}</span>`;head.onclick=()=>{openCategories.has(cid)?openCategories.delete(cid):openCategories.add(cid);renderEdit($("search").value.trim())};sec.appendChild(head);const body=document.createElement("div");body.className="cat-body";[...group.subgroups.values()].forEach(sub=>{body.insertAdjacentHTML("beforeend",`<div class="subcat">${sub.subcategoryName}</div>`);const box=document.createElement("div");box.className="tags";sub.tags.forEach(tag=>{const btn=document.createElement("button");btn.className="tag"+(state.has(tag.id)?" on":"");btn.innerHTML=`${escapeHTML(tag.displayNameJa)} <span class="i">ⓘ</span>`;btn.onclick=ev=>{const rect=btn.getBoundingClientRect();ev.clientX>rect.right-30?openInfo(tag):toggleTag(tag)};box.appendChild(btn)});body.appendChild(box)});sec.appendChild(body);$("categoryRoot").appendChild(sec)});refreshPreview()}
+function renderEdit(q=""){
+  if(builderMode==="prompt"&&(!currentCharacter||!characterById(currentCharacter.id))){currentCharacter=null;setSelectedCharacter(null);goTop();showToast("Characterが見つかりませんでした");return}
+  applyTheme();$("characterSwitchWrap").style.display=builderMode==="prompt"?"flex":"none";if(builderMode==="prompt"){$("builderCharacterIcon").textContent=charEmoji(currentCharacter);$("builderCharacterName").textContent=currentCharacter.displayName}
+  renderPresetLoader();$("presetLoadCard").style.display=builderMode==="prompt"?"block":"none";$("meta").textContent=`${TAGS.length} tags / ${CATEGORIES.length} categories`;$("categoryRoot").innerHTML="";groupedTags(q).forEach(group=>{const cid=group.category.categoryId;const sec=document.createElement("section");sec.className="category"+(openCategories.has(cid)||q?" open":"");const head=document.createElement("button");head.className="cat-head";head.innerHTML=`<span>${group.category.categoryName}</span><span class="cat-count">${selectedCountForCategory(cid)} selected ${sec.classList.contains("open")?"▲":"▼"}</span>`;head.onclick=()=>{openCategories.has(cid)?openCategories.delete(cid):openCategories.add(cid);renderEdit($("search").value.trim())};sec.appendChild(head);const body=document.createElement("div");body.className="cat-body";[...group.subgroups.values()].forEach(sub=>{body.insertAdjacentHTML("beforeend",`<div class="subcat">${sub.subcategoryName}</div>`);const box=document.createElement("div");box.className="tags";sub.tags.forEach(tag=>{const btn=document.createElement("button");btn.className="tag"+(state.has(tag.id)?" on":"");btn.innerHTML=`${escapeHTML(tag.displayNameJa)} <span class="i">ⓘ</span>`;btn.onclick=ev=>{const rect=btn.getBoundingClientRect();ev.clientX>rect.right-30?openInfo(tag):toggleTag(tag)};box.appendChild(btn)});body.appendChild(box)});sec.appendChild(body);$("categoryRoot").appendChild(sec)});refreshPreview()
+}
 function toggleTag(tag){if(state.has(tag.id))state.delete(tag.id);else applyTagId(tag.id);renderEdit($("search").value.trim())}
 function promptSort(a,b){return ((a.promptOrder??999)-(b.promptOrder??999))||((a.sortOrder??0)-(b.sortOrder??0))}
-function buildPrompt(){const selected=TAGS.filter(t=>state.has(t.id)).sort(promptSort);const parts=builderMode==="preset"?selected.map(t=>t.tag):[FIXED_PROMPT_HEADER,currentCharacter.basePrompt,...selected.map(t=>t.tag)];const seen=new Set();return parts.filter(Boolean).flatMap(x=>String(x).split(",")).map(x=>x.trim()).filter(Boolean).filter(x=>{const k=x.toLowerCase();if(seen.has(k))return false;seen.add(k);return true}).join(", ")}
-function refreshPreview(){const selected=TAGS.filter(t=>state.has(t.id)).sort(promptSort);$("preview").innerHTML=selected.length?selected.map(tag=>`<div class="preview-line"><div class="cat-label">${tag.categoryName}</div><div class="jp">${escapeHTML(tag.displayNameJa)}</div><div class="en">${escapeHTML(tag.tag)}</div></div>`).join(""):'<div class="preview-empty">タグを選ぶとここに日本語＋英語で表示されます。</div>';$("copyText").textContent=buildPrompt();$("negativeText").textContent=currentCharacter.negativePrompt||"Negative未設定"}
+function buildPrompt(){const selected=TAGS.filter(t=>state.has(t.id)).sort(promptSort);const parts=builderMode==="preset"?selected.map(t=>t.tag):[FIXED_PROMPT_HEADER,currentCharacter?.basePrompt||"",...selected.map(t=>t.tag)];const seen=new Set();return parts.filter(Boolean).flatMap(x=>String(x).split(",")).map(x=>x.trim()).filter(Boolean).filter(x=>{const k=x.toLowerCase();if(seen.has(k))return false;seen.add(k);return true}).join(", ")}
+function refreshPreview(){const selected=TAGS.filter(t=>state.has(t.id)).sort(promptSort);$("preview").innerHTML=selected.length?selected.map(tag=>`<div class="preview-line"><div class="cat-label">${tag.categoryName}</div><div class="jp">${escapeHTML(tag.displayNameJa)}</div><div class="en">${escapeHTML(tag.tag)}</div></div>`).join(""):'<div class="preview-empty">タグを選ぶとここに日本語＋英語で表示されます。</div>';$("copyText").textContent=buildPrompt();const negative=currentCharacter?.negativePrompt||"";$("negativeText").textContent=negative||"Negative Promptは未設定です";$("negativeCopyBtn").disabled=!negative}
 function setPreviewMode(fixed){fixedPreview=Boolean(fixed);saveJSON(STORAGE.fixedPreview,fixedPreview);const dock=$("previewDock");dock.classList.toggle("fixed",fixedPreview);dock.classList.toggle("inline",!fixedPreview);$("app").classList.toggle("fixed-preview",fixedPreview&&builderMode==="prompt");$("toggleFixedBtn").textContent=fixedPreview?"下部固定 ON":"下部固定 OFF";fixedPreview?document.body.appendChild(dock):$("inlinePreviewAnchor").appendChild(dock)}
 function openInfo(tag){$("infoBody").innerHTML=`<p style="margin:0 0 4px;font-weight:900;">${escapeHTML(tag.displayNameJa)}</p><p class="en">${escapeHTML(tag.tag)}</p><p style="font-size:12px">${escapeHTML(tag.description||"説明は未登録です。")}</p><div class="sample">${tag.infoThumbnail?"登録サムネ":"登録サムネ未設定"}</div><p class="meta">selection: ${tag.selectionRule} / group: ${tag.selectionGroup}</p>`;$("infoModal").classList.add("show")}
 function selectedCategoryIdsFromState(){return new Set(TAGS.filter(t=>state.has(t.id)).map(t=>t.categoryId))}
@@ -2049,7 +2196,9 @@ function openSave(){$("newPresetName").value="";renderSaveCategoryChecks("newSav
 function showToast(text){const t=$("toast");t.textContent=text;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1400)}
 function escapeHTML(value){return String(value??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]))}
 
-$("search").addEventListener("input",()=>renderEdit($("search").value.trim()));
+function updateTagSearchClear(){const hasQuery=$("search").value.length>0;$("tagSearchClear").style.display=hasQuery?"block":"none"}
+$("search").addEventListener("input",()=>{updateTagSearchClear();renderEdit($("search").value.trim())});
+$("tagSearchClear").onclick=()=>{$("search").value="";updateTagSearchClear();renderEdit();$("search").focus()};
 $("presetSearch").addEventListener("input",renderPresetLibrary);
 $("presetSearchClear").onclick=()=>{$("presetSearch").value="";renderPresetLibrary();$("presetSearch").focus()};
 $("clearBtn").onclick=()=>{state.clear();appliedPresetIds.clear();renderEdit($("search").value.trim())};
@@ -2069,13 +2218,23 @@ $("deleteConfirm").onclick=()=>{if(deleteTargetId){MY_PRESETS=MY_PRESETS.filter(
 $("overwriteCancel").onclick=()=>$("overwriteDialog").classList.remove("show");
 $("overwriteConfirm").onclick=()=>{const id=$("overwriteSelect").value,p=getPreset(id);if(!p?.mine)return showToast("上書き対象を選んでください");const categories=checkedCategoryIds("overwriteSaveChecks");if(!categories.size)return showToast("保存するカテゴリを選んでください");const tagIds=selectedTagIdsForCategories(categories);if(!tagIds.length)return showToast("保存するタグがありません");updateMyPreset(id,{tagIds,description:""});editingPresetId=id;$("builderPresetName").textContent=p.displayName;$("overwriteDialog").classList.remove("show");showToast("上書きしました")};
 $("negativeToggle").onclick=()=>{const card=$("negativeCard");card.classList.toggle("open");$("negativeArrow").textContent=card.classList.contains("open")?"▲":"▼"};
-$("negativeCopyBtn").onclick=async()=>{const text=currentCharacter.negativePrompt||"";if(!text)return showToast("Negative未設定です");try{await navigator.clipboard.writeText(text);showToast("Negative Promptをコピーしました")}catch(_){showToast("Negative欄を長押ししてコピー")}};
+$("negativeCopyBtn").onclick=async()=>{const text=currentCharacter?.negativePrompt||"";if(!text)return;try{await navigator.clipboard.writeText(text);showToast("Negative Promptをコピーしました")}catch(_){showToast("Negative欄を長押ししてコピー")}};
 $("saveCharacterBtn").onclick=saveCharacterForm;
-[$("infoModal"),$("saveModal"),$("overwriteDialog")].forEach(m=>m.addEventListener("click",e=>{if(e.target===m)m.classList.remove("show")}));
+$("characterFormBackBtn").onclick=leaveCharacterForm;
+$("cancelCharacterBtn").onclick=leaveCharacterForm;
+$("characterNameInput").addEventListener("input",()=>{if($("characterNameInput").value.trim())setCharacterNameError(false)});
+$("deleteCharacterBtn").onclick=openDeleteCharacter;
+$("deleteCharacterCancel").onclick=()=>$("deleteCharacterDialog").classList.remove("show");
+$("deleteCharacterConfirm").onclick=confirmDeleteCharacter;
+$("characterSwitchButton").onclick=openCharacterPicker;
+$("closeCharacterPicker").onclick=()=>$("characterPickerModal").classList.remove("show");
+[$("infoModal"),$("saveModal"),$("overwriteDialog"),$("characterPickerModal")].forEach(m=>m.addEventListener("click",e=>{if(e.target===m)m.classList.remove("show")}));
 $("deleteDialog").addEventListener("click",e=>{if(e.target===$("deleteDialog"))$("deleteDialog").classList.remove("show")});
+$("deleteCharacterDialog").addEventListener("click",e=>{if(e.target===$("deleteCharacterDialog"))$("deleteCharacterDialog").classList.remove("show")});
 
-const savedCharacterId=loadJSON(STORAGE.selectedCharacterId,CHARACTERS[0].id);
-currentCharacter=effectiveCharacter(characterById(savedCharacterId));
-renderTop();applyTheme(currentCharacter.themeId);setPreviewMode(fixedPreview);show("topView");
+const savedCharacterId=loadJSON(STORAGE.selectedCharacterId,null);
+currentCharacter=characterById(savedCharacterId);
+if(!currentCharacter&&savedCharacterId)setSelectedCharacter(null);
+renderTop();applyTheme();setPreviewMode(fixedPreview);show("topView");
 </script>
 </body></html>
