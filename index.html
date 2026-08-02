@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Prompt Palette Prototype v8.0.1</title>
+<title>Prompt Palette Prototype v8.1</title>
 <style>
 :root{
   --paper:#fffaf7; --ink:#7e63b2; --ink-soft:#9c7bc8;
@@ -1687,13 +1687,45 @@ body.preset-edit-mode #overwriteBtn{min-width:112px}
 .character-picker-list{display:flex;flex-direction:column;gap:8px;max-height:52vh;overflow:auto}
 .character-picker-option{width:100%;min-height:50px;border:1px solid var(--line);border-radius:16px;background:#fff;color:var(--ink);padding:10px 12px;text-align:left;font-size:13px;font-weight:850;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .character-picker-option.active{background:linear-gradient(135deg,var(--fill-soft),#fff);border-color:var(--fill)}
+.char-card-main{
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
+  width:100%;
+  min-width:0;
+  padding:0;
+  border:0;
+  border-radius:inherit;
+  background:transparent;
+  box-shadow:none;
+  color:inherit;
+  text-align:left;
+  appearance:none;
+  -webkit-appearance:none;
+  cursor:pointer;
+}
+
+/* v8.1: preserve the small heart while restoring the 44px tap target. */
+.library-heart,
+.library-heart:hover,
+.library-heart:active,
+.library-heart:focus,
+.library-heart:focus-visible{
+  top:4px !important;
+  left:1px !important;
+  width:44px !important;
+  height:44px !important;
+  min-width:44px !important;
+  min-height:44px !important;
+  padding:0 !important;
+}
 .character-picker-label{min-width:0;display:flex;align-items:center;gap:9px}.character-picker-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .button:disabled{opacity:.45;cursor:not-allowed}
 @media(max-width:360px){.character-switch-name{max-width:215px}.character-empty{padding:22px 12px}}
 
 </style>
 </head>
-<body data-prototype-version="8.0.1" data-master-version="7">
+<body data-prototype-version="8.1" data-master-version="7">
 
 <div class="app" id="app">
   <section id="topView" class="view active">
@@ -1987,6 +2019,22 @@ if(!Array.isArray(MY_PRESETS)){
 const $ = id=>document.getElementById(id);
 function loadJSON(key,fallback){try{const v=localStorage.getItem(key);return v===null?fallback:JSON.parse(v)}catch(_){return fallback}}
 function saveJSON(key,value){try{localStorage.setItem(key,JSON.stringify(value));return true}catch(_){return false}}
+function saveJSONEntries(entries){
+  let serialized;
+  try{serialized=entries.map(([key,value])=>[key,JSON.stringify(value),localStorage.getItem(key)])}
+  catch(_){return false}
+  const written=[];
+  try{
+    serialized.forEach(([key,value])=>{localStorage.setItem(key,value);written.push(key)});
+    return true;
+  }catch(_){
+    for(let i=written.length-1;i>=0;i--){
+      const key=written[i],previous=serialized.find(item=>item[0]===key)?.[2];
+      try{previous===null?localStorage.removeItem(key):localStorage.setItem(key,previous)}catch(__){}
+    }
+    return false;
+  }
+}
 function cleanString(value){return typeof value==="string"?value.trim():""}
 function loadCharacters(){
   let raw;
@@ -2021,7 +2069,12 @@ function allPresets(){
   return [...INITIAL_PRESETS,...MY_PRESETS].map(p=>({...p,favorite:Object.prototype.hasOwnProperty.call(PRESET_FAVORITES,p.id)?Boolean(PRESET_FAVORITES[p.id]):Boolean(p.favorite)}));
 }
 function getPreset(id){return allPresets().find(p=>p.id===id)}
-function updateMyPreset(id,patch){const i=MY_PRESETS.findIndex(p=>p.id===id);if(i<0)return false;MY_PRESETS[i]={...MY_PRESETS[i],...patch,mine:true};saveJSON(STORAGE.myPresets,MY_PRESETS);return true}
+function updateMyPreset(id,patch){
+  const i=MY_PRESETS.findIndex(p=>p.id===id);if(i<0)return false;
+  const next=MY_PRESETS.map((preset,index)=>index===i?{...preset,...patch,mine:true}:preset);
+  if(!saveJSON(STORAGE.myPresets,next))return false;
+  MY_PRESETS=next;return true
+}
 function applyTheme(themeId){const t=theme(themeId),c=t.colors,r=document.documentElement.style;for(const [k,v] of Object.entries({"--ink":c.ink,"--ink-soft":c.inkSoft,"--fill":c.fill,"--fill-strong":c.fillStrong,"--fill-soft":c.fillSoft,"--line":c.line,"--header-start":c.headerStart,"--header-end":c.headerEnd,"--thumb-start":c.thumbnailStart,"--thumb-end":c.thumbnailEnd,"--thumb-accent":c.thumbnailAccent}))r.setProperty(k,v)}
 function show(view){
   ["topView","homeView","editView","presetLibraryView","characterFormView"].forEach(id=>$(id).classList.toggle("active",id===view));
@@ -2059,10 +2112,12 @@ function renderTop(){
     const add=document.createElement("button");add.className="button primary";add.textContent="＋ Characterを追加";add.onclick=()=>goCharacterForm("create");empty.appendChild(add);grid.appendChild(empty);return;
   }
   chars.forEach(ch=>{
-    const card=document.createElement("div");card.className="char-card";card.role="button";card.tabIndex=0;
+    const card=document.createElement("div");card.className="char-card";
+    const main=document.createElement("button");main.type="button";main.className="char-card-main";main.setAttribute("aria-label",`${ch.displayName}のCharacter Homeを開く`);
     const thumb=document.createElement("div");thumb.className="char-thumb";const icon=document.createElement("span");icon.className="char-icon";icon.textContent=charEmoji(ch);thumb.appendChild(icon);
-    const heart=document.createElement("button");heart.type="button";heart.className=`heart${ch.favorite?" active":""}`;heart.setAttribute("aria-label",ch.favorite?"Favoriteを解除":"Favoriteに追加");heart.textContent=ch.favorite?"♥":"♡";heart.onclick=event=>{event.stopPropagation();toggleCharacterFavorite(ch.id,!ch.favorite)};thumb.appendChild(heart);
-    const name=document.createElement("div");name.className="char-name";name.textContent=ch.displayName;card.append(thumb,name);card.onclick=()=>selectCharacter(ch.id);card.onkeydown=event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();selectCharacter(ch.id)}};grid.appendChild(card);
+    const name=document.createElement("div");name.className="char-name";name.textContent=ch.displayName;main.append(thumb,name);main.onclick=()=>selectCharacter(ch.id);
+    const heart=document.createElement("button");heart.type="button";heart.className=`heart${ch.favorite?" active":""}`;heart.setAttribute("aria-label",ch.favorite?"Favoriteから外す":"Favoriteに追加");heart.setAttribute("aria-pressed",String(Boolean(ch.favorite)));heart.textContent=ch.favorite?"♥":"♡";heart.onclick=()=>toggleCharacterFavorite(ch.id,!ch.favorite);
+    card.append(main,heart);grid.appendChild(card);
   });
   const add=document.createElement("button");add.className="character-add-card";add.textContent="＋ Character追加";add.onclick=()=>goCharacterForm("create");grid.appendChild(add);
 }
@@ -2101,7 +2156,7 @@ function saveCharacterForm(){
 function openCharacterPicker(){
   if(builderMode!=="prompt"||!currentCharacter)return;
   const root=$("characterPickerList");root.innerHTML="";
-  characters.forEach(ch=>{const btn=document.createElement("button");btn.type="button";btn.className=`character-picker-option${ch.id===currentCharacter.id?" active":""}`;const label=document.createElement("span");label.className="character-picker-label";const icon=document.createElement("span");icon.textContent=charEmoji(ch);const name=document.createElement("span");name.className="character-picker-name";name.textContent=ch.displayName;label.append(icon,name);btn.append(label);if(ch.id===currentCharacter.id){const mark=document.createElement("span");mark.textContent="✓";btn.appendChild(mark)}btn.onclick=()=>switchBuilderCharacter(ch.id);root.appendChild(btn)});
+  characters.forEach(ch=>{const selected=ch.id===currentCharacter.id;const btn=document.createElement("button");btn.type="button";btn.className=`character-picker-option${selected?" active":""}`;btn.setAttribute("aria-pressed",String(selected));const label=document.createElement("span");label.className="character-picker-label";const icon=document.createElement("span");icon.textContent=charEmoji(ch);const name=document.createElement("span");name.className="character-picker-name";name.textContent=ch.displayName;label.append(icon,name);btn.append(label);if(selected){const mark=document.createElement("span");mark.textContent="✓";btn.appendChild(mark)}btn.onclick=()=>switchBuilderCharacter(ch.id);root.appendChild(btn)});
   $("characterPickerModal").classList.add("show")
 }
 function switchBuilderCharacter(id){
@@ -2164,10 +2219,15 @@ function renderPresetLibrary(){
   const input=$("presetSearch");const rawQ=input?.value||"";const q=normalize(rawQ);
   const all=allPresets().filter(p=>!p.hidden);const filtered=all.filter(p=>normalize(p.displayName).includes(q)).sort(sortPresets);
   $("presetCount").textContent=`${filtered.length} presets`;$("presetSearchClear").style.display=q?"grid":"none";
-  $("presetLibraryList").innerHTML=filtered.map(p=>`<article class="card library-card"><button class="library-heart ${p.favorite?"active":""}" aria-label="Favorite切り替え" onclick="togglePresetFavorite('${p.id}')">${p.favorite?"♥":"♡"}</button><h2 class="library-card-title">${escapeHTML(p.displayName)}</h2><p class="library-card-preview">${escapeHTML(presetTagText(p))}</p>${p.mine?`<div class="library-card-footer"><span class="my-label">My</span><button class="more-btn" aria-label="メニュー" onclick="openPresetMenu(event,'${p.id}')">…</button></div>`:""}</article>`).join("");
+  $("presetLibraryList").innerHTML=filtered.map(p=>`<article class="card library-card"><button type="button" class="library-heart ${p.favorite?"active":""}" aria-label="${p.favorite?"Favoriteから外す":"Favoriteに追加"}" aria-pressed="${p.favorite}" onclick="event.stopPropagation();togglePresetFavorite('${p.id}')">${p.favorite?"♥":"♡"}</button><h2 class="library-card-title">${escapeHTML(p.displayName)}</h2><p class="library-card-preview">${escapeHTML(presetTagText(p))}</p>${p.mine?`<div class="library-card-footer"><span class="my-label">My</span><button class="more-btn" aria-label="メニュー" onclick="openPresetMenu(event,'${p.id}')">…</button></div>`:""}</article>`).join("");
   const empty=!filtered.length;$("presetEmpty").style.display=empty?"block":"none";$("presetEmptyText").innerHTML=q?`「${escapeHTML(rawQ.trim())}」に一致する<br>プリセットはありません。`:"まだプリセットはありません。<br>プロンプト編集でお気に入りの組み合わせを<br>保存すると、ここに並びます。";
 }
-function togglePresetFavorite(id){const p=getPreset(id);if(!p)return;PRESET_FAVORITES[id]=!p.favorite;saveJSON(STORAGE.presetFavorites,PRESET_FAVORITES);renderPresetLibrary();if($("homeView").classList.contains("active"))renderHome()}
+function togglePresetFavorite(id){
+  const p=getPreset(id);if(!p)return;
+  const next={...PRESET_FAVORITES,[id]:!p.favorite};
+  if(!saveJSON(STORAGE.presetFavorites,next)){showToast("Favoriteを更新できませんでした");return}
+  PRESET_FAVORITES=next;renderPresetLibrary();if($("homeView").classList.contains("active"))renderHome()
+}
 function openPresetMenu(ev,id){ev.stopPropagation();menuPresetId=id;const r=ev.currentTarget.getBoundingClientRect(),m=$("presetMenu");m.style.display="block";m.style.left=Math.max(12,Math.min(innerWidth-154,r.right-142))+"px";m.style.top=Math.min(innerHeight-110,r.bottom+3)+"px"}
 function closePresetMenu(){$("presetMenu").style.display="none";menuPresetId=null}
 function editPreset(id){const p=getPreset(id);if(!p?.mine)return;builderMode="preset";editingPresetId=id;state.clear();appliedPresetIds.clear();p.tagIds.forEach(applyTagId);document.body.classList.add("preset-edit-mode");$("builderPageTitle").textContent="プリセット編集";$("builderBackBtn").textContent="← 一覧";$("builderPresetName").textContent=p.displayName;renderEdit();show("editView");closePresetMenu()}
@@ -2210,14 +2270,14 @@ $("overwriteBtn").onclick=()=>{refreshOverwriteSelect();renderSaveCategoryChecks
 $("copyBtn").onclick=async()=>{try{await navigator.clipboard.writeText($("copyText").textContent);showToast("Promptをコピーしました")}catch(_){showToast("コピー欄を長押ししてコピー")}};
 $("closeInfo").onclick=()=>$("infoModal").classList.remove("show");
 $("cancelSave").onclick=()=>$("saveModal").classList.remove("show");
-$("confirmSave").onclick=()=>{const name=$("newPresetName").value.trim();if(!name)return showToast("プリセット名を入力してください");const categories=checkedCategoryIds("newSaveChecks");if(!categories.size)return showToast("保存するカテゴリを選んでください");const tagIds=selectedTagIdsForCategories(categories);if(!tagIds.length)return showToast("保存するタグがありません");const p={id:"my_"+Date.now(),displayName:name,description:"",tagIds,favorite:false,hidden:false,sortOrder:Date.now(),mine:true};MY_PRESETS.push(p);saveJSON(STORAGE.myPresets,MY_PRESETS);$("saveModal").classList.remove("show");showToast("My Presetに保存しました")};
+$("confirmSave").onclick=()=>{const name=$("newPresetName").value.trim();if(!name)return showToast("プリセット名を入力してください");const categories=checkedCategoryIds("newSaveChecks");if(!categories.size)return showToast("保存するカテゴリを選んでください");const tagIds=selectedTagIdsForCategories(categories);if(!tagIds.length)return showToast("保存するタグがありません");const p={id:"my_"+Date.now(),displayName:name,description:"",tagIds,favorite:false,hidden:false,sortOrder:Date.now(),mine:true},next=[...MY_PRESETS,p];if(!saveJSON(STORAGE.myPresets,next))return showToast("Presetを保存できませんでした");MY_PRESETS=next;$("saveModal").classList.remove("show");showToast("My Presetに保存しました")};
 $("presetMenuEdit").onclick=()=>{if(menuPresetId)editPreset(menuPresetId)};
 $("presetMenuDelete").onclick=()=>{if(menuPresetId)openDeletePreset(menuPresetId)};
 document.addEventListener("click",e=>{if(!$("presetMenu").contains(e.target))closePresetMenu()});
 $("deleteCancel").onclick=()=>$("deleteDialog").classList.remove("show");
-$("deleteConfirm").onclick=()=>{if(deleteTargetId){MY_PRESETS=MY_PRESETS.filter(p=>p.id!==deleteTargetId);delete PRESET_FAVORITES[deleteTargetId];saveJSON(STORAGE.myPresets,MY_PRESETS);saveJSON(STORAGE.presetFavorites,PRESET_FAVORITES)}$("deleteDialog").classList.remove("show");deleteTargetId=null;renderPresetLibrary();showToast("プリセットを削除しました")};
+$("deleteConfirm").onclick=()=>{if(!deleteTargetId)return;const nextPresets=MY_PRESETS.filter(p=>p.id!==deleteTargetId),nextFavorites={...PRESET_FAVORITES};delete nextFavorites[deleteTargetId];if(!saveJSONEntries([[STORAGE.myPresets,nextPresets],[STORAGE.presetFavorites,nextFavorites]]))return showToast("Presetを削除できませんでした");const deletedId=deleteTargetId;MY_PRESETS=nextPresets;PRESET_FAVORITES=nextFavorites;appliedPresetIds.delete(deletedId);$("deleteDialog").classList.remove("show");deleteTargetId=null;renderPresetLibrary();showToast("プリセットを削除しました")};
 $("overwriteCancel").onclick=()=>$("overwriteDialog").classList.remove("show");
-$("overwriteConfirm").onclick=()=>{const id=$("overwriteSelect").value,p=getPreset(id);if(!p?.mine)return showToast("上書き対象を選んでください");const categories=checkedCategoryIds("overwriteSaveChecks");if(!categories.size)return showToast("保存するカテゴリを選んでください");const tagIds=selectedTagIdsForCategories(categories);if(!tagIds.length)return showToast("保存するタグがありません");updateMyPreset(id,{tagIds,description:""});editingPresetId=id;$("builderPresetName").textContent=p.displayName;$("overwriteDialog").classList.remove("show");showToast("上書きしました")};
+$("overwriteConfirm").onclick=()=>{const id=$("overwriteSelect").value,p=getPreset(id);if(!p?.mine)return showToast("上書き対象を選んでください");const categories=checkedCategoryIds("overwriteSaveChecks");if(!categories.size)return showToast("保存するカテゴリを選んでください");const tagIds=selectedTagIdsForCategories(categories);if(!tagIds.length)return showToast("保存するタグがありません");if(!updateMyPreset(id,{tagIds,description:""}))return showToast("Presetを保存できませんでした");editingPresetId=id;$("builderPresetName").textContent=p.displayName;$("overwriteDialog").classList.remove("show");showToast("上書きしました")};
 $("negativeToggle").onclick=()=>{const card=$("negativeCard");card.classList.toggle("open");$("negativeArrow").textContent=card.classList.contains("open")?"▲":"▼"};
 $("negativeCopyBtn").onclick=async()=>{const text=currentCharacter?.negativePrompt||"";if(!text)return;try{await navigator.clipboard.writeText(text);showToast("Negative Promptをコピーしました")}catch(_){showToast("Negative欄を長押ししてコピー")}};
 $("saveCharacterBtn").onclick=saveCharacterForm;
