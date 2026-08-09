@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Prompt Palette Prototype v8.6</title>
+<title>Prompt Palette Prototype v8.7</title>
 <style>
 :root{
   --paper:#fffaf7; --ink:#7e63b2; --ink-soft:#9c7bc8;
@@ -1737,12 +1737,12 @@ body.preset-edit-mode #overwriteBtn{min-width:112px}
 .outfit-jump{min-height:38px;max-width:100%;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.62);color:var(--ink);padding:7px 11px;font-size:11px;font-weight:850;white-space:normal;overflow-wrap:anywhere;text-align:center}
 .outfit-section{scroll-margin-top:12px;margin-bottom:18px}.outfit-section-title{margin:0 2px 9px;font-size:14px;font-weight:900;overflow-wrap:anywhere}
 .outfit-card{position:relative;min-height:128px;padding:13px 48px 13px 48px;overflow:hidden}
-.outfit-card-main{display:block;width:100%;min-width:0;border:0;background:transparent!important;box-shadow:none!important;padding:0;color:inherit;text-align:left}
+.outfit-card-main{display:block;width:100%;min-width:0;border:0;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;padding:0;color:inherit;text-align:left}
 button.outfit-card-main{cursor:pointer;border-radius:12px}
 .outfit-card-category{margin:0 0 4px;color:var(--ink-soft);font-size:10px;font-weight:850;overflow-wrap:anywhere}
-.outfit-card-title{margin:0 0 7px;font-size:15px;line-height:1.35;font-weight:900;overflow-wrap:anywhere;word-break:break-word}
-.outfit-card-description{margin:0;color:var(--ink-soft);font-size:12px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;word-break:break-word}
-.outfit-heart{position:absolute!important;left:1px!important;top:4px!important;width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;color:var(--ink);font-size:20px!important;display:grid!important;place-items:center!important}
+.outfit-card-title{margin:0 0 7px;background:transparent!important;font-size:15px;line-height:1.35;font-weight:900;overflow-wrap:anywhere;word-break:break-word}
+.outfit-card-description{margin:0;background:transparent!important;color:var(--ink-soft);font-size:12px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;word-break:break-word}
+.outfit-heart{position:absolute!important;left:1px!important;top:4px!important;width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;color:var(--ink);font-size:20px!important;display:grid!important;place-items:center!important}
 .outfit-more{position:absolute!important;right:1px!important;top:4px!important;width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;color:var(--ink);font-size:21px!important;display:grid!important;place-items:center!important}
 .outfit-menu{position:fixed;z-index:90;width:142px;padding:6px;border-radius:15px;background:rgba(255,255,255,.88);border:1px solid rgba(255,255,255,.66);box-shadow:0 12px 30px rgba(70,50,90,.18);backdrop-filter:blur(18px)}
 .outfit-menu button{width:100%;min-height:44px;border:0;background:transparent!important;text-align:left;padding:8px 10px;color:var(--ink);font-weight:800;border-radius:10px}.outfit-menu .danger{color:var(--danger)!important}
@@ -1752,7 +1752,7 @@ button.outfit-card-main{cursor:pointer;border-radius:12px}
 
 </style>
 </head>
-<body data-prototype-version="8.6" data-master-version="10">
+<body data-prototype-version="8.7" data-master-version="10">
 
 <div class="app" id="app">
   <section id="topView" class="view active">
