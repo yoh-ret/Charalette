@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Prompt Palette Prototype v8.4</title>
+<title>Prompt Palette Prototype v8.5</title>
 <style>
 :root{
   --paper:#fffaf7; --ink:#7e63b2; --ink-soft:#9c7bc8;
@@ -1725,7 +1725,7 @@ body.preset-edit-mode #overwriteBtn{min-width:112px}
 
 </style>
 </head>
-<body data-prototype-version="8.3" data-master-version="8">
+<body data-prototype-version="8.5" data-master-version="10">
 
 <div class="app" id="app">
   <section id="topView" class="view active">
@@ -1861,6 +1861,9 @@ body.preset-edit-mode #overwriteBtn{min-width:112px}
         <div class="row form-actions">
           <button class="button" id="cancelCharacterBtn">キャンセル</button>
           <button class="button primary" id="saveCharacterBtn">保存</button>
+        </div>
+        <div class="character-duplicate-zone" id="characterDuplicateZone" style="display:none">
+          <button class="button full" id="duplicateCharacterBtn">Characterを複製</button>
         </div>
         <div class="character-delete-zone" id="characterDeleteZone" style="display:none">
           <button class="button danger full" id="deleteCharacterBtn">Characterを削除</button>
@@ -2136,7 +2139,7 @@ function renderHome(){
 function setCharacterNameError(showError){$("characterNameInput").classList.toggle("error",showError);$("characterNameError").classList.toggle("show",showError)}
 function renderCharacterForm(){
   const create=characterFormMode==="create",ch=create?null:characterById(characterFormTargetId);if(!create&&!ch){goTop();return}
-  $("characterFormTitle").textContent=create?"Character追加":"Character設定";$("characterFormBackBtn").textContent=create?"← Top":"← Home";$("saveCharacterBtn").textContent=create?"Characterを追加":"保存";$("characterDeleteZone").style.display=create?"none":"block";
+  $("characterFormTitle").textContent=create?"Character追加":"Character設定";$("characterFormBackBtn").textContent=create?"← Top":"← Home";$("saveCharacterBtn").textContent=create?"Characterを追加":"保存";$("characterDuplicateZone").style.display=create?"none":"block";$("characterDeleteZone").style.display=create?"none":"block";
   $("characterNameInput").value=ch?.displayName||"";$("characterIconInput").value=create?"":ch?.icon||"";$("characterBasePromptInput").value=ch?.basePrompt||"";$("characterNegativePromptInput").value=ch?.negativePrompt||"";$("characterDescriptionInput").value=ch?.shortDescription||"";$("characterMemoInput").value=ch?.memo||"";$("characterFavoriteInput").checked=Boolean(ch?.favorite);setCharacterNameError(false)
 }
 function characterFormValues(){return {displayName:$("characterNameInput").value.trim(),icon:$("characterIconInput").value.trim()||"✨",basePrompt:$("characterBasePromptInput").value.trim(),negativePrompt:$("characterNegativePromptInput").value.trim(),shortDescription:$("characterDescriptionInput").value.trim(),memo:$("characterMemoInput").value.trim(),favorite:$("characterFavoriteInput").checked}}
@@ -2152,6 +2155,26 @@ function saveCharacterForm(){
   const ch={...characters[index],...values,id:characters[index].id,createdAt:characters[index].createdAt,updatedAt:now},next=characters.map((item,i)=>i===index?ch:item);
   if(!saveCharacters(next)){showToast("Characterを保存できませんでした");return}
   characters=next;currentCharacter=ch;setSelectedCharacter(ch.id);goHome();showToast("Character設定を保存しました")
+}
+function duplicateCharacter(){
+  if(characterFormMode!=="edit")return;
+  const source=characterById(characterFormTargetId);if(!source){goTop();return}
+  const now=new Date().toISOString();
+  const copy={
+    id:createCharacterId(),
+    displayName:`${source.displayName} コピー`,
+    icon:source.icon,
+    basePrompt:source.basePrompt,
+    negativePrompt:source.negativePrompt,
+    shortDescription:source.shortDescription,
+    memo:source.memo,
+    favorite:false,
+    createdAt:now,
+    updatedAt:now
+  };
+  const next=[...characters,copy];
+  if(!saveJSONEntries([[STORAGE.characters,next],[STORAGE.selectedCharacterId,copy.id]])){showToast("Characterを複製できませんでした");return}
+  characters=next;currentCharacter=copy;characterFormMode="edit";characterFormTargetId=copy.id;renderCharacterForm();show("characterFormView");showToast("Characterを複製しました")
 }
 function openCharacterPicker(){
   if(builderMode!=="prompt"||!currentCharacter)return;
@@ -2284,6 +2307,7 @@ $("saveCharacterBtn").onclick=saveCharacterForm;
 $("characterFormBackBtn").onclick=leaveCharacterForm;
 $("cancelCharacterBtn").onclick=leaveCharacterForm;
 $("characterNameInput").addEventListener("input",()=>{if($("characterNameInput").value.trim())setCharacterNameError(false)});
+$("duplicateCharacterBtn").onclick=duplicateCharacter;
 $("deleteCharacterBtn").onclick=openDeleteCharacter;
 $("deleteCharacterCancel").onclick=()=>$("deleteCharacterDialog").classList.remove("show");
 $("deleteCharacterConfirm").onclick=confirmDeleteCharacter;
