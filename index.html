@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Prompt Palette Prototype v8.3</title>
+<title>Prompt Palette Prototype v8.4</title>
 <style>
 :root{
   --paper:#fffaf7; --ink:#7e63b2; --ink-soft:#9c7bc8;
@@ -2193,7 +2193,7 @@ function removeAppliedPreset(id){
 }
 function renderPresetLoader(){
   const select=$("presetSelect");if(!select)return;
-  const options=allPresets().filter(p=>!p.hidden).sort((a,b)=>(a.mine===b.mine?0:a.mine?-1:1)||a.displayName.localeCompare(b.displayName,"ja"));
+  const options=allPresets().filter(p=>!p.hidden).sort((a,b)=>(a.mine===b.mine?0:a.mine?-1:1)||((a.sortOrder??0)-(b.sortOrder??0))||a.displayName.localeCompare(b.displayName,"ja"));
   const current=select.value;
   select.innerHTML=options.map(p=>`<option value="${p.id}">${escapeHTML(p.displayName)}${p.mine?"（My）":""}</option>`).join("");
   if(options.some(p=>p.id===current))select.value=current;
@@ -2209,7 +2209,7 @@ function renderAppliedPresets(){
 
 function sortPresets(a,b){
   const rank=p=>p.favorite?(p.mine?0:1):(p.mine?2:3);
-  return rank(a)-rank(b)||a.displayName.localeCompare(b.displayName,"ja");
+  return rank(a)-rank(b)||((a.sortOrder??0)-(b.sortOrder??0))||a.displayName.localeCompare(b.displayName,"ja");
 }
 function presetTagText(p){
   if(p.mine){const saved=String(p.description||"").trim();if(saved)return saved}
