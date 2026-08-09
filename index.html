@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Prompt Palette Prototype v8.7</title>
+<title>Prompt Palette Prototype v8.8</title>
 <style>
 :root{
   --paper:#fffaf7; --ink:#7e63b2; --ink-soft:#9c7bc8;
@@ -1750,9 +1750,18 @@ button.outfit-card-main{cursor:pointer;border-radius:12px}
 .outfit-duplicate-zone{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
 @media(max-width:360px){.top-library-actions{gap:2px}.outfit-builder-row{align-items:flex-start;flex-wrap:wrap}.outfit-builder-copy{flex-basis:100%}.outfit-builder-actions{width:100%}.outfit-builder-actions .button{flex:1}.outfit-card{padding-left:44px;padding-right:44px}}
 
+/* v8.8 Backup / Restore MVP */
+.settings-card{padding:16px}
+.settings-section-title{margin:0 0 6px;font-size:15px;font-weight:900}
+.settings-description{margin:0 0 16px;color:var(--ink-soft);font-size:12px;line-height:1.65}
+.settings-actions{display:flex;flex-direction:column;gap:10px}
+.settings-actions .button{min-height:48px}
+.settings-file-input{position:fixed!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;overflow:hidden!important}
+.restore-dialog-copy{line-height:1.7}
+
 </style>
 </head>
-<body data-prototype-version="8.7" data-master-version="10">
+<body data-prototype-version="8.8" data-master-version="10">
 
 <div class="app" id="app">
   <section id="topView" class="view active">
@@ -1766,6 +1775,9 @@ button.outfit-card-main{cursor:pointer;border-radius:12px}
             </button>
             <button class="preset-nav-btn top-library-icon" onclick="goOutfitLibrary('normal','top')" title="Outfit Library" aria-label="Outfit Libraryを開く">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 4.2L12 6l3.8-1.8L20 7.5l-2.3 3.3-2.2-1.4V21h-7V9.4l-2.2 1.4L4 7.5l4.2-3.3z"></path><path d="M9.2 4.8c.5 1.3 1.4 2 2.8 2s2.3-.7 2.8-2"></path></svg>
+            </button>
+            <button class="preset-nav-btn top-library-icon" onclick="goSettings()" title="Settings" aria-label="Settingsを開く">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z"></path><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.37a1.7 1.7 0 0 0-1 .63 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.37a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.23 15a1.7 1.7 0 0 0-.63-1 1.7 1.7 0 0 0-1.1-.4H2.4v-4h.1A1.7 1.7 0 0 0 4.23 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 8.6 4.23a1.7 1.7 0 0 0 1-.63 1.7 1.7 0 0 0 .4-1.1V2.4h4v.1A1.7 1.7 0 0 0 15 4.23a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.37 8.6a1.7 1.7 0 0 0 .63 1 1.7 1.7 0 0 0 1.1.4h.1v4h-.1a1.7 1.7 0 0 0-1.7 1z"></path></svg>
             </button>
           </div>
         </div>
@@ -1985,6 +1997,24 @@ button.outfit-card-main{cursor:pointer;border-radius:12px}
       </div>
     </main>
   </section>
+
+  <section id="settingsView" class="view">
+    <main class="main">
+      <div class="page-topbar centered">
+        <button class="small-btn back-btn" onclick="goTop()">← Top</button>
+        <h1 class="page-title-center">Settings</h1>
+      </div>
+      <div class="card settings-card">
+        <h2 class="settings-section-title">データ</h2>
+        <p class="settings-description">Prompt Paletteで作成したデータと設定を保存・復元します。</p>
+        <div class="settings-actions">
+          <button class="button primary full" id="backupExportBtn">バックアップを書き出す</button>
+          <button class="button full" id="backupRestoreBtn">バックアップから復元</button>
+        </div>
+        <input class="settings-file-input" id="backupFileInput" type="file" accept="application/json,.json" aria-label="Prompt PaletteのバックアップJSONを選択" />
+      </div>
+    </main>
+  </section>
 </div>
 
 
@@ -2076,6 +2106,17 @@ button.outfit-card-main{cursor:pointer;border-radius:12px}
   </div>
 </div>
 
+<div class="dialog-bg" id="restoreDialog">
+  <div class="dialog-card">
+    <h2>バックアップから復元しますか？</h2>
+    <p class="restore-dialog-copy">バックアップから復元すると、現在のCharacters・My Presets・Outfits・設定は、バックアップの内容で置き換えられます。</p>
+    <div class="dialog-actions">
+      <button class="button" id="restoreCancel">キャンセル</button>
+      <button class="button danger" id="restoreConfirm">復元する</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-bg" id="overwriteDialog">
   <div class="sheet preset-save-sheet">
     <h2>プリセット上書き</h2>
@@ -2102,6 +2143,9 @@ const PRESETS = [{"id":"preset_builtin_001","displayName":"✨ 透明感アニ�
 const PROMPT_HEADERS = [{"id": "pixai_standard", "displayName": "PixAI Standard", "description": "PixAIで標準的に使うPrompt Header。品質を安定させる基本セット。", "prompt": "masterpiece, best quality, high quality", "sortOrder": 10, "hidden": false}, {"id": "pixai_face", "displayName": "PixAI Face", "description": "顔・ポートレートを高品質に出したい時のHeader。必要に応じて使用。", "prompt": "masterpiece, best quality, ultra detailed", "sortOrder": 20, "hidden": false}, {"id": "none", "displayName": "None", "description": "Prompt Headerを使用しない。", "prompt": "", "sortOrder": 999, "hidden": false}];
 
 const FIXED_PROMPT_HEADER = "masterpiece, best quality, very aesthetic, absurdres, ultra-detailed, intricate details, sharp focus";
+const APP_VERSION = "8.8";
+const BACKUP_FORMAT = "prompt-palette-backup";
+const BACKUP_SCHEMA_VERSION = 1;
 const STORAGE = {
   myPresets:"promptPalette.v7_5.myPresets",
   presetFavorites:"promptPalette.v7_5.presetFavorites",
@@ -2131,6 +2175,7 @@ let editingOutfitId = null;
 let selectedOutfitId = null;
 let menuOutfitId = null;
 let deleteOutfitTargetId = null;
+let pendingRestore = null;
 let PRESET_FAVORITES = loadJSON(STORAGE.presetFavorites,{});
 let characters = loadCharacters();
 let outfits = loadOutfits();
@@ -2195,6 +2240,137 @@ function loadOutfits(){
   return valid;
 }
 function saveOutfits(next){return saveJSON(STORAGE.outfits,next)}
+function isRecord(value){return Boolean(value)&&typeof value==="object"&&!Array.isArray(value)}
+function invalidBackup(){throw new Error("invalid-backup")}
+function normalizeCharactersForBackup(value){
+  if(!Array.isArray(value))invalidBackup();
+  const ids=new Set();
+  return value.map(item=>{
+    if(!isRecord(item))invalidBackup();
+    const id=cleanString(item.id),displayName=cleanString(item.displayName);
+    if(!id||!displayName||ids.has(id))invalidBackup();
+    ids.add(id);
+    return {id,displayName,icon:cleanString(item.icon)||"✨",basePrompt:cleanString(item.basePrompt),negativePrompt:cleanString(item.negativePrompt),shortDescription:cleanString(item.shortDescription),memo:cleanString(item.memo),favorite:typeof item.favorite==="boolean"?item.favorite:false,createdAt:cleanString(item.createdAt),updatedAt:cleanString(item.updatedAt)};
+  });
+}
+function normalizeMyPresetsForBackup(value,includeMine=true){
+  if(!Array.isArray(value))invalidBackup();
+  const ids=new Set();
+  return value.map((item,index)=>{
+    if(!isRecord(item))invalidBackup();
+    const id=cleanString(item.id),displayName=cleanString(item.displayName);
+    if(!id||!displayName||ids.has(id)||!Array.isArray(item.tagIds))invalidBackup();
+    const tagIds=item.tagIds.map(tagId=>{if(typeof tagId!=="string"||!tagId.trim())invalidBackup();return tagId.trim()});
+    ids.add(id);
+    const preset={id,displayName,description:cleanString(item.description),tagIds,favorite:typeof item.favorite==="boolean"?item.favorite:false,hidden:typeof item.hidden==="boolean"?item.hidden:false,sortOrder:Number.isFinite(item.sortOrder)?item.sortOrder:index};
+    if(includeMine)preset.mine=true;
+    return preset;
+  });
+}
+function normalizeOutfitsForBackup(value){
+  if(!Array.isArray(value))invalidBackup();
+  const ids=new Set();
+  return value.map(item=>{
+    if(!isRecord(item))invalidBackup();
+    const id=cleanString(item.id),title=cleanString(item.title);
+    if(!id||!title||ids.has(id))invalidBackup();
+    ids.add(id);
+    return {id,category:cleanString(item.category),title,description:cleanString(item.description),positivePrompt:cleanString(item.positivePrompt),negativePrompt:cleanString(item.negativePrompt),memo:cleanString(item.memo),favorite:typeof item.favorite==="boolean"?item.favorite:false,createdAt:cleanString(item.createdAt),updatedAt:cleanString(item.updatedAt)};
+  });
+}
+function normalizePresetFavoritesForBackup(value){
+  if(!isRecord(value))invalidBackup();
+  const result=Object.create(null),dangerous=new Set(["__proto__","prototype","constructor"]);
+  for(const [rawKey,rawValue] of Object.entries(value)){
+    const key=cleanString(rawKey);
+    if(!key||dangerous.has(key)||typeof rawValue!=="boolean")invalidBackup();
+    result[key]=rawValue;
+  }
+  return result;
+}
+function validIsoDate(value){return typeof value==="string"&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?(?:Z|[+-]\d{2}:\d{2})$/.test(value)&&Number.isFinite(Date.parse(value))}
+function buildBackupPayload(){
+  const storedMyPresets=loadJSON(STORAGE.myPresets,[]),storedFavorites=loadJSON(STORAGE.presetFavorites,{}),storedFixedPreview=loadJSON(STORAGE.fixedPreview,false);
+  const data={
+    characters:normalizeCharactersForBackup(loadCharacters()),
+    myPresets:normalizeMyPresetsForBackup(Array.isArray(storedMyPresets)?storedMyPresets:[],false),
+    outfits:normalizeOutfitsForBackup(loadOutfits())
+  };
+  const settings={presetFavorites:normalizePresetFavoritesForBackup(storedFavorites),fixedPreview:Boolean(storedFixedPreview)};
+  return {format:BACKUP_FORMAT,version:BACKUP_SCHEMA_VERSION,createdAt:new Date().toISOString(),appVersion:APP_VERSION,data,settings};
+}
+function validateBackupPayload(value){
+  if(!isRecord(value)||value.format!==BACKUP_FORMAT||value.version!==BACKUP_SCHEMA_VERSION||!validIsoDate(value.createdAt)||!cleanString(value.appVersion)||!isRecord(value.data)||!isRecord(value.settings))invalidBackup();
+  for(const key of ["characters","myPresets","outfits"])if(!Object.prototype.hasOwnProperty.call(value.data,key))invalidBackup();
+  for(const key of ["presetFavorites","fixedPreview"])if(!Object.prototype.hasOwnProperty.call(value.settings,key))invalidBackup();
+  if(typeof value.settings.fixedPreview!=="boolean")invalidBackup();
+  const candidate={
+    characters:normalizeCharactersForBackup(value.data.characters),
+    myPresets:normalizeMyPresetsForBackup(value.data.myPresets,true),
+    outfits:normalizeOutfitsForBackup(value.data.outfits),
+    presetFavorites:normalizePresetFavoritesForBackup(value.settings.presetFavorites),
+    fixedPreview:value.settings.fixedPreview
+  };
+  candidate.serialized={
+    characters:JSON.stringify(candidate.characters),
+    myPresets:JSON.stringify(candidate.myPresets),
+    outfits:JSON.stringify(candidate.outfits),
+    presetFavorites:JSON.stringify(candidate.presetFavorites),
+    fixedPreview:JSON.stringify(candidate.fixedPreview)
+  };
+  return candidate;
+}
+function backupFileName(date=new Date()){return `Prompt_Palette_Backup_${date.toISOString().slice(0,10)}.json`}
+function exportBackup(){
+  try{
+    const json=JSON.stringify(buildBackupPayload(),null,2),blob=new Blob([json],{type:"application/json;charset=utf-8"}),url=URL.createObjectURL(blob),link=document.createElement("a");
+    link.href=url;link.download=backupFileName();link.style.display="none";document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast("バックアップを書き出しました");
+  }catch(_){showToast("バックアップを書き出せませんでした")}
+}
+async function prepareRestoreFile(file){
+  pendingRestore=null;
+  try{
+    const text=await file.text(),parsed=JSON.parse(text);
+    pendingRestore=validateBackupPayload(parsed);
+    $("restoreDialog").classList.add("show");
+  }catch(_){showToast("このファイルはPrompt Paletteのバックアップとして読み込めません。")}
+}
+function writeRestoreCandidate(candidate,storage=localStorage){
+  const operations=[
+    [STORAGE.characters,"set",candidate.serialized.characters],
+    [STORAGE.myPresets,"set",candidate.serialized.myPresets],
+    [STORAGE.outfits,"set",candidate.serialized.outfits],
+    [STORAGE.presetFavorites,"set",candidate.serialized.presetFavorites],
+    [STORAGE.fixedPreview,"set",candidate.serialized.fixedPreview],
+    [STORAGE.selectedCharacterId,"remove",null]
+  ];
+  let snapshot;
+  try{snapshot=operations.map(([key])=>[key,storage.getItem(key)])}catch(_){return {ok:false,rollbackOk:true}}
+  const written=[];
+  try{
+    operations.forEach(([key,action,value])=>{action==="remove"?storage.removeItem(key):storage.setItem(key,value);written.push(key)});
+    return {ok:true,rollbackOk:true};
+  }catch(_){
+    let rollbackOk=true;
+    for(let i=written.length-1;i>=0;i--){
+      const key=written[i],previous=snapshot.find(item=>item[0]===key)?.[1];
+      try{previous===null?storage.removeItem(key):storage.setItem(key,previous)}catch(__){rollbackOk=false}
+    }
+    return {ok:false,rollbackOk};
+  }
+}
+function resetTransientStateAfterRestore(){
+  currentCharacter=null;selectedOutfitId=null;state.clear();appliedPresetIds.clear();openCategories.clear();["face","expression_modifier","gaze"].forEach(id=>openCategories.add(id));
+  builderMode="prompt";editingPresetId=null;libraryOrigin="top";menuPresetId=null;deleteTargetId=null;characterFormMode="edit";characterFormTargetId=null;outfitLibraryMode="normal";outfitOrigin="top";outfitFormMode="create";editingOutfitId=null;menuOutfitId=null;deleteOutfitTargetId=null;
+  ["search","presetSearch","characterNameInput","characterIconInput","characterBasePromptInput","characterNegativePromptInput","characterDescriptionInput","characterMemoInput","outfitTitleInput","outfitCategoryInput","outfitDescriptionInput","outfitPositivePromptInput","outfitNegativePromptInput","outfitMemoInput"].forEach(id=>{const el=$(id);if(el)el.value=""});
+  document.body.classList.remove("preset-edit-mode");document.querySelectorAll(".modal-bg.show,.dialog-bg.show").forEach(el=>el.classList.remove("show"));closePresetMenu();closeOutfitMenu();
+}
+function confirmRestore(){
+  if(!pendingRestore)return;
+  const candidate=pendingRestore,result=writeRestoreCandidate(candidate);
+  if(!result.ok){$("restoreDialog").classList.remove("show");pendingRestore=null;showToast(result.rollbackOk?"復元できませんでした":"復元中に重大なエラーが発生しました");return}
+  characters=candidate.characters;MY_PRESETS=candidate.myPresets;outfits=candidate.outfits;PRESET_FAVORITES=candidate.presetFavorites;fixedPreview=candidate.fixedPreview;pendingRestore=null;resetTransientStateAfterRestore();renderTop();show("topView");showToast("復元しました");
+}
 function createOutfitId(){
   try{if(globalThis.crypto?.randomUUID)return `outfit_${crypto.randomUUID()}`}catch(_){}
   return `outfit_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,12)}`;
@@ -2223,13 +2399,14 @@ function updateMyPreset(id,patch){
 }
 function applyTheme(themeId){const t=theme(themeId),c=t.colors,r=document.documentElement.style;for(const [k,v] of Object.entries({"--ink":c.ink,"--ink-soft":c.inkSoft,"--fill":c.fill,"--fill-strong":c.fillStrong,"--fill-soft":c.fillSoft,"--line":c.line,"--header-start":c.headerStart,"--header-end":c.headerEnd,"--thumb-start":c.thumbnailStart,"--thumb-end":c.thumbnailEnd,"--thumb-accent":c.thumbnailAccent}))r.setProperty(k,v)}
 function show(view){
-  ["topView","homeView","editView","presetLibraryView","characterFormView","outfitLibraryView","outfitFormView"].forEach(id=>$(id).classList.toggle("active",id===view));
+  ["topView","homeView","editView","presetLibraryView","characterFormView","outfitLibraryView","outfitFormView","settingsView"].forEach(id=>$(id).classList.toggle("active",id===view));
   const previewVisible=view==="editView"&&builderMode==="prompt";
   $("previewDock").style.display=previewVisible?"block":"none";
   $("app").classList.toggle("fixed-preview",previewVisible&&fixedPreview);
   closePresetMenu();closeOutfitMenu();window.scrollTo({top:0,behavior:"auto"});
 }
 function goTop(){builderMode="prompt";editingPresetId=null;document.body.classList.remove("preset-edit-mode");renderTop();show("topView")}
+function goSettings(){show("settingsView")}
 function goHome(){
   if(!currentCharacter||!characterById(currentCharacter.id)){currentCharacter=null;setSelectedCharacter(null);goTop();return false}
   builderMode="prompt";editingPresetId=null;document.body.classList.remove("preset-edit-mode");renderHome();show("homeView");return true
@@ -2546,11 +2723,17 @@ $("outfitMenuEdit").onclick=()=>{const id=menuOutfitId;if(id)editOutfit(id)};
 $("outfitMenuDelete").onclick=()=>{const id=menuOutfitId;if(id)openDeleteOutfit(id)};
 $("deleteOutfitCancel").onclick=()=>$("deleteOutfitDialog").classList.remove("show");
 $("deleteOutfitConfirm").onclick=confirmDeleteOutfit;
+$("backupExportBtn").onclick=exportBackup;
+$("backupRestoreBtn").onclick=()=>{const input=$("backupFileInput");input.value="";input.click()};
+$("backupFileInput").addEventListener("change",e=>{const file=e.target.files?.[0];if(file)prepareRestoreFile(file)});
+$("restoreCancel").onclick=()=>{$("restoreDialog").classList.remove("show");pendingRestore=null};
+$("restoreConfirm").onclick=confirmRestore;
 document.addEventListener("click",e=>{if(!$("outfitMenu").contains(e.target))closeOutfitMenu()});
 [$("infoModal"),$("saveModal"),$("overwriteDialog"),$("characterPickerModal")].forEach(m=>m.addEventListener("click",e=>{if(e.target===m)m.classList.remove("show")}));
 $("deleteDialog").addEventListener("click",e=>{if(e.target===$("deleteDialog"))$("deleteDialog").classList.remove("show")});
 $("deleteCharacterDialog").addEventListener("click",e=>{if(e.target===$("deleteCharacterDialog"))$("deleteCharacterDialog").classList.remove("show")});
 $("deleteOutfitDialog").addEventListener("click",e=>{if(e.target===$("deleteOutfitDialog"))$("deleteOutfitDialog").classList.remove("show")});
+$("restoreDialog").addEventListener("click",e=>{if(e.target===$("restoreDialog")){$("restoreDialog").classList.remove("show");pendingRestore=null}});
 
 const savedCharacterId=loadJSON(STORAGE.selectedCharacterId,null);
 currentCharacter=characterById(savedCharacterId);
