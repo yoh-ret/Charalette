@@ -23,12 +23,12 @@ Prompt Paletteは、キャラクターごとの固定プロンプトを土台に
 ## Current Status
 
 - 開発フェーズ: MVP完成・実運用中
-- 現行Prototype: v9.0
+- 現行Prototype: v9.1
 - 現行Master: v10（883タグ／18カテゴリ／113 Preset）
 - 公開版: ルート `index.html`（GitHub Pages）
 - 標準テーマ: Glass Lavender Theme
 
-Prototype v9.0では、Character複製、Outfit Preset、Backup / Restore、Character並べ替えMVPを維持し、Top画面の並べ替えを指に追従するsortable型へ改善しています。
+Prototype v9.1では、Character複製、Outfit Preset、Backup / Restore、Character並べ替えMVPを維持し、iPhone Safariでスクロール時にドラッグカードがずれる表示不具合を修正しています。
 
 ## Current MVP Stack
 
