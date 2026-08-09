@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Prompt Palette Prototype v8.8</title>
+<title>Prompt Palette Prototype v8.9</title>
 <style>
 :root{
   --paper:#fffaf7; --ink:#7e63b2; --ink-soft:#9c7bc8;
@@ -1759,9 +1759,30 @@ button.outfit-card-main{cursor:pointer;border-radius:12px}
 .settings-file-input{position:fixed!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;overflow:hidden!important}
 .restore-dialog-copy{line-height:1.7}
 
+/* v8.9 Character reorder MVP */
+.character-section-actions{display:flex;align-items:center;gap:8px}
+.character-reorder-entry{min-height:38px;padding:7px 11px;font-size:11px}
+.character-reorder-toolbar{display:flex;gap:8px;margin:0 0 12px}
+.character-reorder-toolbar[hidden]{display:none}
+.character-reorder-toolbar .button{min-height:44px}
+.character-reorder-group-title{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 2px 0;padding:8px 2px 5px;border-bottom:1px solid var(--line);font-size:12px;font-weight:900}
+.character-reorder-group-title:not(:first-child){margin-top:10px}
+.character-reorder-group-empty{grid-column:1/-1;margin:0;padding:12px;border:1px dashed var(--line);border-radius:16px;color:var(--ink-soft);font-size:11px;text-align:center}
+.char-card.reorder-card{position:relative;overflow:visible}
+.reorder-card .char-card-main{cursor:default}
+.character-drag-handle{position:absolute!important;top:4px!important;right:2px!important;z-index:4;width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;padding:0!important;display:grid!important;place-items:center!important;border:0!important;background:rgba(255,255,255,.72)!important;color:var(--ink)!important;font-size:22px!important;line-height:1!important;box-shadow:none!important;touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab}
+.character-drag-handle:disabled{opacity:.4;cursor:not-allowed}
+.character-reorder-controls{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:5px}
+.character-reorder-controls .button{min-width:44px;min-height:44px;padding:5px;font-size:10px;line-height:1.25}
+.reorder-card.dragging{opacity:.58;transform:scale(.98);box-shadow:0 12px 30px rgba(102,76,150,.18)}
+.char-grid.boundary-blocked .character-reorder-group-title{color:var(--danger)}
+.character-reorder-active{overscroll-behavior-y:contain}
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+@media(max-width:360px){.character-reorder-entry{padding:7px 9px}.character-reorder-controls .button{font-size:9px}}
+
 </style>
 </head>
-<body data-prototype-version="8.8" data-master-version="10">
+<body data-prototype-version="8.9" data-master-version="10">
 
 <div class="app" id="app">
   <section id="topView" class="view active">
@@ -1788,8 +1809,19 @@ button.outfit-card-main{cursor:pointer;border-radius:12px}
         </div>
       </div>
       <div class="card">
-        <div class="section-title"><span>📌 Characters</span><span id="charCount"></span></div>
+        <div class="section-title">
+          <span>📌 Characters</span>
+          <div class="character-section-actions">
+            <span id="charCount"></span>
+            <button class="button character-reorder-entry" id="characterReorderEntry" type="button">並べ替え</button>
+          </div>
+        </div>
+        <div class="character-reorder-toolbar" id="characterReorderToolbar" role="group" aria-label="Character並べ替えモードの操作" hidden>
+          <button class="button" id="characterReorderCancel" type="button">キャンセル</button>
+          <button class="button primary" id="characterReorderDone" type="button">完了</button>
+        </div>
         <div class="char-grid" id="charGrid"></div>
+        <div class="sr-only" id="characterReorderStatus" aria-live="polite" aria-atomic="true"></div>
       </div>
     </main>
   </section>
@@ -2143,7 +2175,7 @@ const PRESETS = [{"id":"preset_builtin_001","displayName":"✨ 透明感アニ�
 const PROMPT_HEADERS = [{"id": "pixai_standard", "displayName": "PixAI Standard", "description": "PixAIで標準的に使うPrompt Header。品質を安定させる基本セット。", "prompt": "masterpiece, best quality, high quality", "sortOrder": 10, "hidden": false}, {"id": "pixai_face", "displayName": "PixAI Face", "description": "顔・ポートレートを高品質に出したい時のHeader。必要に応じて使用。", "prompt": "masterpiece, best quality, ultra detailed", "sortOrder": 20, "hidden": false}, {"id": "none", "displayName": "None", "description": "Prompt Headerを使用しない。", "prompt": "", "sortOrder": 999, "hidden": false}];
 
 const FIXED_PROMPT_HEADER = "masterpiece, best quality, very aesthetic, absurdres, ultra-detailed, intricate details, sharp focus";
-const APP_VERSION = "8.8";
+const APP_VERSION = "8.9";
 const BACKUP_FORMAT = "prompt-palette-backup";
 const BACKUP_SCHEMA_VERSION = 1;
 const STORAGE = {
@@ -2176,6 +2208,11 @@ let selectedOutfitId = null;
 let menuOutfitId = null;
 let deleteOutfitTargetId = null;
 let pendingRestore = null;
+let characterReorderMode = false;
+let characterReorderOriginal = null;
+let characterReorderFavorites = [];
+let characterReorderRegular = [];
+let characterDragState = null;
 let PRESET_FAVORITES = loadJSON(STORAGE.presetFavorites,{});
 let characters = loadCharacters();
 let outfits = loadOutfits();
@@ -2442,16 +2479,76 @@ function openOutfitForm(mode="create",id=null){
 function leaveOutfitForm(){goOutfitLibrary(outfitLibraryMode,outfitOrigin)}
 
 function charEmoji(ch){return cleanString(ch?.icon)||"✨"}
+function characterGroups(list=characters){return {favorite:list.filter(ch=>ch.favorite),regular:list.filter(ch=>!ch.favorite)}}
+function characterGroupLabel(group){return group==="favorite"?"Favorite":"非Favorite"}
+function characterReorderGroup(group){return group==="favorite"?characterReorderFavorites:characterReorderRegular}
+function setCharacterReorderGroup(group,next){if(group==="favorite")characterReorderFavorites=next;else characterReorderRegular=next}
+function announceCharacterReorder(text){$("characterReorderStatus").textContent="";setTimeout(()=>{$("characterReorderStatus").textContent=text},20)}
+function startCharacterReorder(){
+  if(characters.length<2)return;
+  const groups=characterGroups();characterReorderOriginal=[...characters];characterReorderFavorites=[...groups.favorite];characterReorderRegular=[...groups.regular];characterReorderMode=true;renderTop();announceCharacterReorder("Character並べ替えモードを開始しました")
+}
+function clearCharacterReorderState(){
+  endCharacterDrag();characterReorderMode=false;characterReorderOriginal=null;characterReorderFavorites=[];characterReorderRegular=[];document.body.classList.remove("character-reorder-active")
+}
+function cancelCharacterReorder(){clearCharacterReorderState();renderTop()}
+function completeCharacterReorder(){
+  if(!characterReorderMode)return;
+  const next=[...characterReorderFavorites,...characterReorderRegular];
+  if(!saveCharacters(next)){showToast("並べ替えを保存できませんでした");announceCharacterReorder("保存できませんでした。再試行するかキャンセルしてください");return}
+  characters=next;clearCharacterReorderState();renderTop();showToast("並べ替えを保存しました")
+}
+function moveCharacterInReorder(id,group,offset,focusAction){
+  const list=characterReorderGroup(group),from=list.findIndex(ch=>ch.id===id),to=from+offset;if(from<0||to<0||to>=list.length)return;
+  const next=[...list],[moved]=next.splice(from,1);next.splice(to,0,moved);setCharacterReorderGroup(group,next);renderTop();announceCharacterReorder(`${moved.displayName}を${characterGroupLabel(group)}の${to+1}番目へ移動しました`);
+  setTimeout(()=>document.querySelector(`[data-character-id="${CSS.escape(id)}"] [data-reorder-action="${focusAction}"]`)?.focus(),0)
+}
+function startCharacterDrag(event,id,group){
+  const list=characterReorderGroup(group);if(!characterReorderMode||list.length<2||event.pointerType==="mouse"&&event.button!==0)return;
+  event.preventDefault();const card=event.currentTarget.closest(".char-card");if(!card)return;
+  characterDragState={id,group,card,startIndex:list.findIndex(ch=>ch.id===id),moved:false};card.classList.add("dragging");document.body.classList.add("character-reorder-active");
+}
+function onCharacterDragMove(event){
+  if(!characterDragState)return;event.preventDefault();
+  if(event.clientY<72)window.scrollBy(0,-12);else if(event.clientY>window.innerHeight-72)window.scrollBy(0,12);
+  const grid=$("charGrid"),hit=document.elementFromPoint(event.clientX,event.clientY)?.closest(".char-card[data-character-id]");
+  if(!hit||hit===characterDragState.card)return;
+  if(hit.dataset.characterGroup!==characterDragState.group){grid.classList.add("boundary-blocked");return}
+  grid.classList.remove("boundary-blocked");const targetId=hit.dataset.characterId,list=characterReorderGroup(characterDragState.group),from=list.findIndex(ch=>ch.id===characterDragState.id);if(from<0)return;
+  const rect=hit.getBoundingClientRect(),nearSameRow=Math.abs(event.clientY-(rect.top+rect.height/2))<rect.height*.22,after=event.clientY>rect.top+rect.height/2||(nearSameRow&&event.clientX>rect.left+rect.width/2);
+  const without=list.filter(ch=>ch.id!==characterDragState.id),targetIndex=without.findIndex(ch=>ch.id===targetId);if(targetIndex<0)return;
+  const insertAt=targetIndex+(after?1:0),[moved]=list.filter(ch=>ch.id===characterDragState.id);without.splice(insertAt,0,moved);setCharacterReorderGroup(characterDragState.group,without);
+  after?hit.after(characterDragState.card):hit.before(characterDragState.card);characterDragState.moved=characterDragState.moved||from!==insertAt
+}
+function endCharacterDrag(){
+  if(!characterDragState)return;const {id,group,card,moved}=characterDragState;card?.classList.remove("dragging");$("charGrid")?.classList.remove("boundary-blocked");document.body.classList.remove("character-reorder-active");characterDragState=null;
+  if(moved){const list=characterReorderGroup(group),index=list.findIndex(ch=>ch.id===id),ch=list[index];if(ch)announceCharacterReorder(`${ch.displayName}を${characterGroupLabel(group)}の${index+1}番目へ移動しました`)}
+}
+function renderCharacterReorderGroup(grid,group,list){
+  const heading=document.createElement("div");heading.className="character-reorder-group-title";heading.setAttribute("role","heading");heading.setAttribute("aria-level","3");heading.innerHTML=`<span>${characterGroupLabel(group)}</span><span>${list.length}件</span>`;grid.appendChild(heading);
+  if(!list.length){const empty=document.createElement("p");empty.className="character-reorder-group-empty";empty.textContent=`${characterGroupLabel(group)} Characterはありません`;grid.appendChild(empty);return}
+  list.forEach((ch,index)=>grid.appendChild(createReorderCharacterCard(ch,group,index,list.length)))
+}
+function createReorderCharacterCard(ch,group,index,total){
+  const card=document.createElement("div");card.className="char-card reorder-card";card.dataset.characterId=ch.id;card.dataset.characterGroup=group;card.setAttribute("role","group");card.setAttribute("aria-label",`${ch.displayName}、${characterGroupLabel(group)}の${index+1}番目、全${total}件`);
+  const main=document.createElement("div");main.className="char-card-main";const thumb=document.createElement("div");thumb.className="char-thumb";const icon=document.createElement("span");icon.className="char-icon";icon.textContent=charEmoji(ch);thumb.appendChild(icon);const name=document.createElement("div");name.className="char-name";name.textContent=ch.displayName;main.append(thumb,name);
+  const handle=document.createElement("button");handle.type="button";handle.className="character-drag-handle";handle.textContent="≡";handle.disabled=total<2;handle.setAttribute("aria-label",`${ch.displayName}、${characterGroupLabel(group)}の${index+1}番目をドラッグして並べ替え`);handle.addEventListener("pointerdown",event=>startCharacterDrag(event,ch.id,group));
+  const controls=document.createElement("div");controls.className="character-reorder-controls";
+  const previous=document.createElement("button");previous.type="button";previous.className="button";previous.dataset.reorderAction="previous";previous.textContent="1つ前へ";previous.disabled=index===0;previous.setAttribute("aria-label",`${ch.displayName}、${characterGroupLabel(group)}の${index+1}番目を1つ前へ移動`);previous.onclick=()=>moveCharacterInReorder(ch.id,group,-1,"previous");
+  const next=document.createElement("button");next.type="button";next.className="button";next.dataset.reorderAction="next";next.textContent="1つ後へ";next.disabled=index===total-1;next.setAttribute("aria-label",`${ch.displayName}、${characterGroupLabel(group)}の${index+1}番目を1つ後へ移動`);next.onclick=()=>moveCharacterInReorder(ch.id,group,1,"next");controls.append(previous,next);card.append(main,handle,controls);return card
+}
 function renderTop(){
-  const chars=[...characters.filter(c=>c.favorite),...characters.filter(c=>!c.favorite)];
+  const groups=characterGroups(),chars=characterReorderMode?[...characterReorderFavorites,...characterReorderRegular]:[...groups.favorite,...groups.regular];
   $("charCount").textContent=`${chars.length} chars`;
-  const grid=$("charGrid");grid.innerHTML="";
+  $("characterReorderEntry").hidden=characterReorderMode||chars.length<2;$("characterReorderToolbar").hidden=!characterReorderMode;$("topView").setAttribute("aria-label",characterReorderMode?"Character並べ替えモード":"Top");document.querySelectorAll(".top-library-actions button").forEach(button=>button.disabled=characterReorderMode);
+  const grid=$("charGrid");grid.innerHTML="";grid.classList.toggle("reorder-mode",characterReorderMode);
+  if(characterReorderMode){renderCharacterReorderGroup(grid,"favorite",characterReorderFavorites);renderCharacterReorderGroup(grid,"regular",characterReorderRegular);return}
   if(!chars.length){
     const empty=document.createElement("div");empty.className="character-empty";empty.innerHTML="<p>まだCharacterがありません。<br>最初のCharacterを追加して、パレットを始めよう。</p>";
     const add=document.createElement("button");add.className="button primary";add.textContent="＋ Characterを追加";add.onclick=()=>goCharacterForm("create");empty.appendChild(add);grid.appendChild(empty);return;
   }
   chars.forEach(ch=>{
-    const card=document.createElement("div");card.className="char-card";
+    const card=document.createElement("div");card.className="char-card";card.dataset.characterId=ch.id;card.dataset.characterGroup=ch.favorite?"favorite":"regular";
     const main=document.createElement("button");main.type="button";main.className="char-card-main";main.setAttribute("aria-label",`${ch.displayName}のCharacter Homeを開く`);
     const thumb=document.createElement("div");thumb.className="char-thumb";const icon=document.createElement("span");icon.className="char-icon";icon.textContent=charEmoji(ch);thumb.appendChild(icon);
     const name=document.createElement("div");name.className="char-name";name.textContent=ch.displayName;main.append(thumb,name);main.onclick=()=>selectCharacter(ch.id);
@@ -2463,7 +2560,8 @@ function renderTop(){
 function selectCharacter(id){const ch=characterById(id);if(!ch){goTop();return}currentCharacter=ch;setSelectedCharacter(id);applyTheme();goHome()}
 function toggleCharacterFavorite(id,value){
   const index=characters.findIndex(ch=>ch.id===id);if(index<0)return;
-  const next=characters.map((ch,i)=>i===index?{...ch,favorite:Boolean(value),updatedAt:new Date().toISOString()}:ch);
+  const target=characters[index],nextValue=Boolean(value);if(target.favorite===nextValue)return;
+  const updated={...target,favorite:nextValue,updatedAt:new Date().toISOString()},remaining=characters.filter(ch=>ch.id!==id),groups=characterGroups(remaining);if(nextValue)groups.favorite.push(updated);else groups.regular.push(updated);const next=[...groups.favorite,...groups.regular];
   if(!saveCharacters(next)){showToast("Characterを保存できませんでした");return}
   characters=next;if(currentCharacter?.id===id)currentCharacter=characterById(id);renderTop()
 }
@@ -2488,7 +2586,8 @@ function saveCharacterForm(){
     characters=next;currentCharacter=ch;setSelectedCharacter(ch.id);goHome();showToast("Characterを追加しました");return;
   }
   const index=characters.findIndex(ch=>ch.id===characterFormTargetId);if(index<0){goTop();return}
-  const ch={...characters[index],...values,id:characters[index].id,createdAt:characters[index].createdAt,updatedAt:now},next=characters.map((item,i)=>i===index?ch:item);
+  const original=characters[index],ch={...original,...values,id:original.id,createdAt:original.createdAt,updatedAt:now};let next;
+  if(original.favorite!==ch.favorite){const remaining=characters.filter(item=>item.id!==ch.id),groups=characterGroups(remaining);if(ch.favorite)groups.favorite.push(ch);else groups.regular.push(ch);next=[...groups.favorite,...groups.regular]}else next=characters.map((item,i)=>i===index?ch:item);
   if(!saveCharacters(next)){showToast("Characterを保存できませんでした");return}
   characters=next;currentCharacter=ch;setSelectedCharacter(ch.id);goHome();showToast("Character設定を保存しました")
 }
@@ -2700,6 +2799,12 @@ $("overwriteConfirm").onclick=()=>{const id=$("overwriteSelect").value,p=getPres
 $("negativeToggle").onclick=()=>{const card=$("negativeCard");card.classList.toggle("open");$("negativeArrow").textContent=card.classList.contains("open")?"▲":"▼"};
 $("negativeCopyBtn").onclick=async()=>{const text=buildNegativePrompt();if(!text)return;try{await navigator.clipboard.writeText(text);showToast("Negative Promptをコピーしました")}catch(_){showToast("Negative欄を長押ししてコピー")}};
 $("saveCharacterBtn").onclick=saveCharacterForm;
+$("characterReorderEntry").onclick=startCharacterReorder;
+$("characterReorderCancel").onclick=cancelCharacterReorder;
+$("characterReorderDone").onclick=completeCharacterReorder;
+window.addEventListener("pointermove",onCharacterDragMove,{passive:false});
+window.addEventListener("pointerup",endCharacterDrag);
+window.addEventListener("pointercancel",endCharacterDrag);
 $("characterFormBackBtn").onclick=leaveCharacterForm;
 $("cancelCharacterBtn").onclick=leaveCharacterForm;
 $("characterNameInput").addEventListener("input",()=>{if($("characterNameInput").value.trim())setCharacterNameError(false)});
