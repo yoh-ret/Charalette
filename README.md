@@ -22,10 +22,13 @@ Prompt Paletteは、キャラクターごとの固定プロンプトを土台に
 
 ## Current Status
 
-- 開発フェーズ: MVP仕様策定
-- 現行Prototype: v7.4
+- 開発フェーズ: MVP完成・実運用中
+- 現行Prototype: v9.0
+- 現行Master: v10（883タグ／18カテゴリ／113 Preset）
+- 公開版: ルート `index.html`（GitHub Pages）
 - 標準テーマ: Glass Lavender Theme
-- 次のマイルストーン: Prototype v7.5
+
+Prototype v9.0では、Character複製、Outfit Preset、Backup / Restore、Character並べ替えMVPを維持し、Top画面の並べ替えを指に追従するsortable型へ改善しています。
 
 ## Current MVP Stack
 
@@ -45,9 +48,9 @@ React / Firebase / Firestore への移行は、Architecture Map と Decision Log
 ```text
 Prompt_Palette/
 ├── README.md
+├── index.html
 └── prototype/
-    ├── Prompt_Palette_Prototype_v5_JSON.html
-    └── Prompt_Palette_Prototype_v7_4.html
+    └── Prompt_Palette_Prototype_v9_0.html
 ```
 
 本実装へ進む段階で、正本に基づき以下の構成へ整理する予定です。
@@ -84,4 +87,4 @@ Prompt_Palette/
 
 ## Prototype
 
-現行のUI・操作感は、`prototype/Prompt_Palette_Prototype_v7_4.html` を参照してください。
+公開入口はルート `index.html`、正式保存版は `prototype/Prompt_Palette_Prototype_v9_0.html` です。
