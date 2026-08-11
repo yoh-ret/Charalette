@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Prompt Palette Prototype v9.2</title>
+<title>Prompt Palette Prototype v9.3</title>
 <style>
 :root{
   --paper:#fffaf7; --ink:#7e63b2; --ink-soft:#9c7bc8;
@@ -2209,7 +2209,7 @@ const PRESETS = [{"id":"preset_builtin_001","displayName":"✨ 透明感アニ�
 const PROMPT_HEADERS = [{"id": "pixai_standard", "displayName": "PixAI Standard", "description": "PixAIで標準的に使うPrompt Header。品質を安定させる基本セット。", "prompt": "masterpiece, best quality, high quality", "sortOrder": 10, "hidden": false}, {"id": "pixai_face", "displayName": "PixAI Face", "description": "顔・ポートレートを高品質に出したい時のHeader。必要に応じて使用。", "prompt": "masterpiece, best quality, ultra detailed", "sortOrder": 20, "hidden": false}, {"id": "none", "displayName": "None", "description": "Prompt Headerを使用しない。", "prompt": "", "sortOrder": 999, "hidden": false}];
 
 const FIXED_PROMPT_HEADER = "masterpiece, best quality, very aesthetic, absurdres, ultra-detailed, intricate details, sharp focus";
-const APP_VERSION = "9.2";
+const APP_VERSION = "9.3";
 const BACKUP_FORMAT = "prompt-palette-backup";
 const BACKUP_SCHEMA_VERSION = 1;
 const STORAGE = {
@@ -2398,7 +2398,10 @@ function validateBackupPayload(value){
   };
   return candidate;
 }
-function backupFileName(date=new Date()){return `Prompt_Palette_Backup_${date.toISOString().slice(0,10)}.json`}
+function backupFileName(date=new Date()){
+  const year=date.getFullYear(),month=String(date.getMonth()+1).padStart(2,"0"),day=String(date.getDate()).padStart(2,"0");
+  return `Prompt_Palette_Backup_${year}-${month}-${day}.json`;
+}
 function exportBackup(){
   try{
     const json=JSON.stringify(buildBackupPayload(),null,2),blob=new Blob([json],{type:"application/json;charset=utf-8"}),url=URL.createObjectURL(blob),link=document.createElement("a");
