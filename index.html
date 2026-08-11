@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Prompt Palette Prototype v9.3</title>
+<title>Prompt Palette Prototype v9.4</title>
 <style>
 :root{
   --paper:#fffaf7; --ink:#7e63b2; --ink-soft:#9c7bc8;
@@ -1675,6 +1675,8 @@ body.preset-edit-mode #overwriteBtn{min-width:112px}
 .character-empty p{margin:0 0 16px;color:var(--ink-soft);font-size:13px}
 .character-add-card{min-height:174px;border:1px dashed var(--line);border-radius:20px;background:rgba(255,255,255,.48);color:var(--ink);font-size:13px;font-weight:900;display:grid;place-items:center;padding:14px}
 .character-add-card:active{transform:scale(.99)}
+.characterless-entry{grid-column:1/-1;min-height:44px;border:1px dashed var(--line);border-radius:16px;background:rgba(255,255,255,.38);color:var(--ink);font-size:13px;font-weight:850;padding:10px 12px}
+.characterless-entry:active{transform:scale(.99)}
 .char-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .char-icon{font-size:42px;line-height:1}
 .field-error{display:none;margin:-5px 4px 10px;color:var(--danger);font-size:11px;font-weight:800}
@@ -2209,7 +2211,7 @@ const PRESETS = [{"id":"preset_builtin_001","displayName":"✨ 透明感アニ�
 const PROMPT_HEADERS = [{"id": "pixai_standard", "displayName": "PixAI Standard", "description": "PixAIで標準的に使うPrompt Header。品質を安定させる基本セット。", "prompt": "masterpiece, best quality, high quality", "sortOrder": 10, "hidden": false}, {"id": "pixai_face", "displayName": "PixAI Face", "description": "顔・ポートレートを高品質に出したい時のHeader。必要に応じて使用。", "prompt": "masterpiece, best quality, ultra detailed", "sortOrder": 20, "hidden": false}, {"id": "none", "displayName": "None", "description": "Prompt Headerを使用しない。", "prompt": "", "sortOrder": 999, "hidden": false}];
 
 const FIXED_PROMPT_HEADER = "masterpiece, best quality, very aesthetic, absurdres, ultra-detailed, intricate details, sharp focus";
-const APP_VERSION = "9.3";
+const APP_VERSION = "9.4";
 const BACKUP_FORMAT = "prompt-palette-backup";
 const BACKUP_SCHEMA_VERSION = 1;
 const STORAGE = {
@@ -2236,6 +2238,7 @@ let deleteTargetId = null;
 let characterFormMode = "edit";
 let characterFormTargetId = null;
 let currentCharacter = null;
+let characterlessMode = false;
 let outfitLibraryMode = "normal";
 let outfitOrigin = "top";
 let outfitFormMode = "create";
@@ -2442,7 +2445,7 @@ function writeRestoreCandidate(candidate,storage=localStorage){
   }
 }
 function resetTransientStateAfterRestore(){
-  currentCharacter=null;selectedOutfitId=null;state.clear();appliedPresetIds.clear();openCategories.clear();["face","expression_modifier","gaze"].forEach(id=>openCategories.add(id));
+  currentCharacter=null;characterlessMode=false;selectedOutfitId=null;state.clear();appliedPresetIds.clear();openCategories.clear();["face","expression_modifier","gaze"].forEach(id=>openCategories.add(id));
   builderMode="prompt";editingPresetId=null;libraryOrigin="top";menuPresetId=null;deleteTargetId=null;characterFormMode="edit";characterFormTargetId=null;outfitLibraryMode="normal";outfitOrigin="top";outfitFormMode="create";editingOutfitId=null;menuOutfitId=null;deleteOutfitTargetId=null;
   ["search","presetSearch","characterNameInput","characterIconInput","characterBasePromptInput","characterNegativePromptInput","characterDescriptionInput","characterMemoInput","outfitTitleInput","outfitCategoryInput","outfitDescriptionInput","outfitPositivePromptInput","outfitNegativePromptInput","outfitMemoInput"].forEach(id=>{const el=$(id);if(el)el.value=""});
   document.body.classList.remove("preset-edit-mode");document.querySelectorAll(".modal-bg.show,.dialog-bg.show").forEach(el=>el.classList.remove("show"));closePresetMenu();closeOutfitMenu();
@@ -2487,7 +2490,7 @@ function show(view){
   $("app").classList.toggle("fixed-preview",previewVisible&&fixedPreview);
   closePresetMenu();closeOutfitMenu();window.scrollTo({top:0,behavior:"auto"});
 }
-function goTop(){builderMode="prompt";editingPresetId=null;document.body.classList.remove("preset-edit-mode");renderTop();show("topView")}
+function goTop(){builderMode="prompt";editingPresetId=null;characterlessMode=false;document.body.classList.remove("preset-edit-mode");renderTop();show("topView")}
 function goSettings(){syncPromptHeaderSettingUI();show("settingsView")}
 function goHome(){
   if(!currentCharacter||!characterById(currentCharacter.id)){currentCharacter=null;setSelectedCharacter(null);goTop();return false}
@@ -2501,9 +2504,12 @@ function goCharacterForm(mode="edit",id=currentCharacter?.id){
 function leaveCharacterForm(){characterFormMode==="create"?goTop():goHome()}
 function goEdit(){
   if(!currentCharacter||!characterById(currentCharacter.id)){currentCharacter=null;setSelectedCharacter(null);goTop();showToast("Characterが見つかりませんでした");return}
-  builderMode="prompt";editingPresetId=null;selectedOutfitId=null;document.body.classList.remove("preset-edit-mode");$("builderPageTitle").textContent="プロンプト編集";$("builderBackBtn").textContent="← Home";$("builderPresetName").textContent="";renderEdit();show("editView");setPreviewMode(fixedPreview)
+  characterlessMode=false;builderMode="prompt";editingPresetId=null;selectedOutfitId=null;document.body.classList.remove("preset-edit-mode");$("builderPageTitle").textContent="プロンプト編集";$("builderBackBtn").textContent="← Home";$("builderPresetName").textContent="";renderEdit();show("editView");setPreviewMode(fixedPreview)
 }
-function builderBack(){if(builderMode==="preset"){editingPresetId=null;builderMode="prompt";document.body.classList.remove("preset-edit-mode");goPresetLibrary(libraryOrigin)}else goHome()}
+function goCharacterlessBuilder(){
+  characterlessMode=true;currentCharacter=null;builderMode="prompt";editingPresetId=null;selectedOutfitId=null;document.body.classList.remove("preset-edit-mode");$("builderPageTitle").textContent="プロンプト編集";$("builderBackBtn").textContent="← Top";$("builderPresetName").textContent="";renderEdit();show("editView");setPreviewMode(fixedPreview)
+}
+function builderBack(){if(builderMode==="preset"){editingPresetId=null;builderMode="prompt";document.body.classList.remove("preset-edit-mode");goPresetLibrary(libraryOrigin)}else if(characterlessMode)goTop();else goHome()}
 function goPresetLibrary(origin){libraryOrigin=origin||libraryOrigin;$("libraryBackBtn").textContent=libraryOrigin==="characterHome"?"← Home":"← Top";renderPresetLibrary();show("presetLibraryView")}
 function backFromPresetLibrary(){libraryOrigin==="characterHome"?goHome():goTop()}
 function goOutfitLibrary(mode="normal",origin="top"){
@@ -2603,7 +2609,9 @@ function renderTop(){
   if(characterReorderMode){renderCharacterReorderGroup(grid,"favorite",characterReorderFavorites);renderCharacterReorderGroup(grid,"regular",characterReorderRegular);return}
   if(!chars.length){
     const empty=document.createElement("div");empty.className="character-empty";empty.innerHTML="<p>まだCharacterがありません。<br>最初のCharacterを追加して、パレットを始めよう。</p>";
-    const add=document.createElement("button");add.className="button primary";add.textContent="＋ Characterを追加";add.onclick=()=>goCharacterForm("create");empty.appendChild(add);grid.appendChild(empty);return;
+    const add=document.createElement("button");add.className="button primary";add.textContent="＋ Characterを追加";add.onclick=()=>goCharacterForm("create");empty.appendChild(add);grid.appendChild(empty);
+    const characterless=document.createElement("button");characterless.type="button";characterless.className="characterless-entry";characterless.textContent="Characterなしで作る";characterless.setAttribute("aria-label","CharacterなしでPrompt Builderを開く");characterless.onclick=goCharacterlessBuilder;grid.appendChild(characterless);
+    return;
   }
   chars.forEach(ch=>{
     const card=document.createElement("div");card.className="char-card";card.dataset.characterId=ch.id;card.dataset.characterGroup=ch.favorite?"favorite":"regular";
@@ -2614,6 +2622,7 @@ function renderTop(){
     card.append(main,heart);grid.appendChild(card);
   });
   const add=document.createElement("button");add.className="character-add-card";add.textContent="＋ Character追加";add.onclick=()=>goCharacterForm("create");grid.appendChild(add);
+  const characterless=document.createElement("button");characterless.type="button";characterless.className="characterless-entry";characterless.textContent="Characterなしで作る";characterless.setAttribute("aria-label","CharacterなしでPrompt Builderを開く");characterless.onclick=goCharacterlessBuilder;grid.appendChild(characterless);
 }
 function selectCharacter(id){const ch=characterById(id);if(!ch){goTop();return}currentCharacter=ch;setSelectedCharacter(id);applyTheme();goHome()}
 function toggleCharacterFavorite(id,value){
@@ -2670,14 +2679,16 @@ function duplicateCharacter(){
   characters=next;currentCharacter=copy;characterFormMode="edit";characterFormTargetId=copy.id;renderCharacterForm();show("characterFormView");showToast("Characterを複製しました")
 }
 function openCharacterPicker(){
-  if(builderMode!=="prompt"||!currentCharacter)return;
+  if(builderMode!=="prompt")return;
   const root=$("characterPickerList");root.innerHTML="";
-  characters.forEach(ch=>{const selected=ch.id===currentCharacter.id;const btn=document.createElement("button");btn.type="button";btn.className=`character-picker-option${selected?" active":""}`;btn.setAttribute("aria-pressed",String(selected));const label=document.createElement("span");label.className="character-picker-label";const icon=document.createElement("span");icon.textContent=charEmoji(ch);const name=document.createElement("span");name.className="character-picker-name";name.textContent=ch.displayName;label.append(icon,name);btn.append(label);if(selected){const mark=document.createElement("span");mark.textContent="✓";btn.appendChild(mark)}btn.onclick=()=>switchBuilderCharacter(ch.id);root.appendChild(btn)});
+  const none=document.createElement("button");none.type="button";none.className=`character-picker-option${characterlessMode?" active":""}`;none.setAttribute("aria-label","Characterなし");none.setAttribute("aria-pressed",String(characterlessMode));none.textContent="Characterなし";if(characterlessMode){const mark=document.createElement("span");mark.textContent="✓";none.appendChild(mark)}none.onclick=()=>switchBuilderToCharacterless();root.appendChild(none);
+  characters.forEach(ch=>{const selected=!characterlessMode&&ch.id===currentCharacter?.id;const btn=document.createElement("button");btn.type="button";btn.className=`character-picker-option${selected?" active":""}`;btn.setAttribute("aria-pressed",String(selected));const label=document.createElement("span");label.className="character-picker-label";const icon=document.createElement("span");icon.textContent=charEmoji(ch);const name=document.createElement("span");name.className="character-picker-name";name.textContent=ch.displayName;label.append(icon,name);btn.append(label);if(selected){const mark=document.createElement("span");mark.textContent="✓";btn.appendChild(mark)}btn.onclick=()=>switchBuilderCharacter(ch.id);root.appendChild(btn)});
   $("characterPickerModal").classList.add("show")
 }
+function switchBuilderToCharacterless(){characterlessMode=true;currentCharacter=null;$("characterPickerModal").classList.remove("show");renderEdit($("search").value.trim())}
 function switchBuilderCharacter(id){
   const ch=characterById(id);if(!ch){$("characterPickerModal").classList.remove("show");goTop();showToast("Characterが見つかりませんでした");return}
-  currentCharacter=ch;setSelectedCharacter(id);$("characterPickerModal").classList.remove("show");applyTheme();renderEdit($("search").value.trim())
+  characterlessMode=false;currentCharacter=ch;setSelectedCharacter(id);$("characterPickerModal").classList.remove("show");applyTheme();renderEdit($("search").value.trim())
 }
 function openDeleteCharacter(){const ch=characterById(characterFormTargetId);if(!ch){goTop();return}$("deleteCharacterName").textContent=ch.displayName;$("deleteCharacterDialog").classList.add("show")}
 function confirmDeleteCharacter(){
@@ -2812,9 +2823,9 @@ function matchesSearch(tag,q){if(!q)return true;const hay=[tag.displayNameJa,tag
 function selectedCountForCategory(cid){return TAGS.filter(t=>t.categoryId===cid&&state.has(t.id)).length}
 function groupedTags(q=""){const groups=new Map();[...CATEGORIES].sort((a,b)=>(a.uiOrder||a.sortOrder)-(b.uiOrder||b.sortOrder)).forEach(cat=>{if(!cat.hidden)groups.set(cat.categoryId,{category:cat,subgroups:new Map(),count:0})});TAGS.forEach(tag=>{if(tag.hidden||!matchesSearch(tag,q))return;const cg=groups.get(tag.categoryId);if(!cg)return;if(!cg.subgroups.has(tag.subcategoryId))cg.subgroups.set(tag.subcategoryId,{subcategoryName:tag.subcategoryName,tags:[]});cg.subgroups.get(tag.subcategoryId).tags.push(tag);cg.count++});return [...groups.values()].filter(g=>g.count>0)}
 function renderEdit(q=""){
-  if(builderMode==="prompt"&&(!currentCharacter||!characterById(currentCharacter.id))){currentCharacter=null;setSelectedCharacter(null);goTop();showToast("Characterが見つかりませんでした");return}
+  if(builderMode==="prompt"&&!characterlessMode&&(!currentCharacter||!characterById(currentCharacter.id))){currentCharacter=null;setSelectedCharacter(null);goTop();showToast("Characterが見つかりませんでした");return}
   if(selectedOutfitId&&!outfitById(selectedOutfitId))selectedOutfitId=null;
-  applyTheme();$("characterSwitchWrap").style.display=builderMode==="prompt"?"flex":"none";$("outfitBuilderCard").style.display=builderMode==="prompt"?"block":"none";if(builderMode==="prompt"){$("builderCharacterIcon").textContent=charEmoji(currentCharacter);$("builderCharacterName").textContent=currentCharacter.displayName;const outfit=outfitById(selectedOutfitId);$("builderOutfitName").textContent=outfit?.title||"なし";$("chooseOutfitBtn").textContent=outfit?"変更":"選ぶ";$("clearOutfitBtn").style.display=outfit?"block":"none"}
+  applyTheme();$("characterSwitchWrap").style.display=builderMode==="prompt"?"flex":"none";$("outfitBuilderCard").style.display=builderMode==="prompt"?"block":"none";if(builderMode==="prompt"){$("builderCharacterIcon").style.display=characterlessMode?"none":"";$("builderCharacterIcon").textContent=charEmoji(currentCharacter);$("builderCharacterName").textContent=characterlessMode?"Characterなし":currentCharacter.displayName;$("characterSwitchButton").setAttribute("aria-label",characterlessMode?"Characterなしを選択中。Characterを切り替える":"Characterを切り替える");const outfit=outfitById(selectedOutfitId);$("builderOutfitName").textContent=outfit?.title||"なし";$("chooseOutfitBtn").textContent=outfit?"変更":"選ぶ";$("clearOutfitBtn").style.display=outfit?"block":"none"}
   renderPresetLoader();$("presetLoadCard").style.display=builderMode==="prompt"?"block":"none";$("meta").textContent=`${TAGS.length} tags / ${CATEGORIES.length} categories`;$("categoryRoot").innerHTML="";groupedTags(q).forEach(group=>{const cid=group.category.categoryId;const sec=document.createElement("section");sec.className="category"+(openCategories.has(cid)||q?" open":"");const head=document.createElement("button");head.className="cat-head";head.innerHTML=`<span>${group.category.categoryName}</span><span class="cat-count">${selectedCountForCategory(cid)} selected ${sec.classList.contains("open")?"▲":"▼"}</span>`;head.onclick=()=>{openCategories.has(cid)?openCategories.delete(cid):openCategories.add(cid);renderEdit($("search").value.trim())};sec.appendChild(head);const body=document.createElement("div");body.className="cat-body";[...group.subgroups.values()].forEach(sub=>{body.insertAdjacentHTML("beforeend",`<div class="subcat">${sub.subcategoryName}</div>`);const box=document.createElement("div");box.className="tags";sub.tags.forEach(tag=>{const btn=document.createElement("button");btn.className="tag"+(state.has(tag.id)?" on":"");btn.innerHTML=`${escapeHTML(tag.displayNameJa)} <span class="i">ⓘ</span>`;btn.onclick=ev=>{const rect=btn.getBoundingClientRect();ev.clientX>rect.right-30?openInfo(tag):toggleTag(tag)};box.appendChild(btn)});body.appendChild(box)});sec.appendChild(body);$("categoryRoot").appendChild(sec)});refreshPreview()
 }
 function toggleTag(tag){if(state.has(tag.id))state.delete(tag.id);else applyTagId(tag.id);renderEdit($("search").value.trim())}
