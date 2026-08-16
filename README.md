@@ -11,7 +11,7 @@ Charaletteは、キャラクターを起点に衣装・プリセット・タグ�
 
 - GitHub Pages: https://yoh-ret.github.io/Prompt_Palette/
 - Browser title: `Charalette`
-- Current Prototype: `Prompt_Palette_Prototype_v9_8.html`
+- Current Prototype: `Prompt_Palette_Prototype_v9_9.html`
 - Current Master: `Prompt_Palette_Master_v10.xlsx`（883 tags / 18 categories / 113 Presets）
 
 ## Current MVP Features
@@ -66,11 +66,31 @@ Character、Outfit、My Preset、Favorite、品質タグ設定、Thumbnailは端
 
 ```text
 Prompt_Palette/
+├── assets/
+│   ├── charalette-logo.svg
+│   ├── favicon.svg
+│   ├── favicon-32.png
+│   ├── favicon-48.png
+│   ├── apple-touch-icon.png
+│   ├── charalette-icon-512.png
+│   └── og-charalette.png
 ├── README.md
 ├── index.html
 └── prototype/
-    └── Prompt_Palette_Prototype_v9_8.html
+    └── Prompt_Palette_Prototype_v9_9.html
 ```
+
+## Brand Assets
+
+Charaletteの公開Brand Assetsは、Glass Lavender Themeとつながる手描きの `C + color dots` を共通シンボルとします。
+
+- Wordmark: `assets/charalette-logo.svg`
+- Favicon: SVG / 32×32 PNG / 48×48 PNG
+- Apple Touch Icon: 180×180 PNG
+- High-resolution icon: 512×512 PNG
+- Open Graph image: `assets/og-charalette.png`（1200×630）
+
+Top画面は受入済みのテキスト表示とHeroレイアウトを維持し、ロゴ画像への置換は行っていません。
 
 ## Development Priorities
 
@@ -87,4 +107,4 @@ LICENSEは設定していません。ソースコードおよび内部辞書・�
 
 ## Public Release Readiness
 
-favicon、OGP画像、独自ドメイン、repository名変更は未決定であり、現行MVPの公開には含めていません。
+faviconとOGP画像は公開実装へ反映済みです。独自ドメインとrepository名変更は未決定であり、現行MVPの公開には含めていません。

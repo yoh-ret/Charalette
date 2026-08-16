@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Charalette">
+  <defs>
+    <linearGradient id="bg" x1="8" y1="5" x2="57" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF9F5"/>
+      <stop offset="0.56" stop-color="#F5EEFF"/>
+      <stop offset="1" stop-color="#ECF9F4"/>
+    </linearGradient>
+    <linearGradient id="c" x1="14" y1="13" x2="48" y2="52" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8E73C4"/>
+      <stop offset="0.58" stop-color="#A892D9"/>
+      <stop offset="1" stop-color="#D895B5"/>
+    </linearGradient>
+  </defs>
+  <rect x="3" y="3" width="58" height="58" rx="18" fill="url(#bg)" stroke="#D8C9ED" stroke-width="2"/>
+  <path d="M43 18 C35 11 22 13 17 24 C12 35 16 48 28 51 C35 53 42 50 46 45"
+        fill="none" stroke="#FFF9F5" stroke-opacity="0.86" stroke-width="10" stroke-linecap="round"/>
+  <path d="M43 18 C35 11 22 13 17 24 C12 35 16 48 28 51 C35 53 42 50 46 45"
+        fill="none" stroke="url(#c)" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="45" cy="24" r="4" fill="#F2AFCB"/>
+  <circle cx="49" cy="32" r="3.7" fill="#ACDCC8"/>
+  <circle cx="45" cy="40" r="3.4" fill="#A8D8E7"/>
+  <circle cx="43.8" cy="22.8" r="1.2" fill="#FFF9F5" fill-opacity="0.85"/>
+</svg>

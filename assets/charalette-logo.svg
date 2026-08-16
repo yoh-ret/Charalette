@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 260" role="img" aria-labelledby="title desc">
+  <title id="title">Charalette</title>
+  <desc id="desc">手描きのCと、やわらかな筆記体風のCharaletteワードマーク</desc>
+  <defs>
+    <linearGradient id="cWash" x1="60" y1="30" x2="220" y2="220" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#9B83D3"/>
+      <stop offset="0.55" stop-color="#B9A7E8"/>
+      <stop offset="1" stop-color="#F0AFCB"/>
+    </linearGradient>
+    <linearGradient id="inkWash" x1="240" y1="60" x2="1040" y2="200" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6F5A74"/>
+      <stop offset="0.5" stop-color="#796080"/>
+      <stop offset="1" stop-color="#8A6E8C"/>
+    </linearGradient>
+    <filter id="handmade" x="-5%" y="-10%" width="110%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.045" numOctaves="2" seed="17" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.9" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+
+  <!-- The open C becomes the compact favicon symbol. -->
+  <path d="M198 67 C164 34 104 42 76 88 C48 134 65 194 116 207 C148 216 180 205 202 181"
+        fill="none" stroke="#FFF9F5" stroke-opacity="0.7" stroke-width="31" stroke-linecap="round"/>
+  <path d="M198 67 C164 34 104 42 76 88 C48 134 65 194 116 207 C148 216 180 205 202 181"
+        fill="none" stroke="url(#cWash)" stroke-width="21" stroke-linecap="round" filter="url(#handmade)"/>
+  <circle cx="201" cy="91" r="10" fill="#F6BDD5"/>
+  <circle cx="218" cy="119" r="9" fill="#CBEBDD"/>
+  <circle cx="203" cy="147" r="8" fill="#C9E8F2"/>
+  <circle cx="197" cy="87" r="3" fill="#FFF9F5" fill-opacity="0.72"/>
+  <circle cx="215" cy="116" r="2.5" fill="#FFF9F5" fill-opacity="0.72"/>
+
+  <!-- Custom monoline lettering: readable at small sizes, with slight hand-made variation. -->
+  <g fill="none" stroke="url(#inkWash)" stroke-width="11.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#handmade)">
+    <!-- h -->
+    <path d="M246 184 C254 151 263 104 268 57 C270 42 280 40 280 56 C278 89 270 123 265 149 C278 122 299 108 313 116 C327 124 317 153 319 170 C320 181 331 178 345 160"/>
+    <!-- a -->
+    <path d="M345 158 C351 132 369 115 387 117 C406 120 407 143 396 163 C387 180 368 184 359 173 C349 161 355 140 369 129 C384 117 399 125 399 141 C398 160 399 180 414 181 C424 182 435 169 443 158"/>
+    <!-- r -->
+    <path d="M443 180 C449 158 452 137 454 117 C455 140 458 151 465 145 C473 137 475 117 487 115 C499 113 508 123 504 136"/>
+    <!-- a -->
+    <path d="M505 158 C511 132 529 115 547 117 C566 120 567 143 556 163 C547 180 528 184 519 173 C509 161 515 140 529 129 C544 117 559 125 559 141 C558 160 559 180 574 181 C584 182 595 169 603 158"/>
+    <!-- l -->
+    <path d="M604 179 C612 148 622 101 625 58 C626 43 617 42 613 56 C605 84 610 114 623 133 C632 147 644 153 654 149 C646 157 637 166 630 174 C624 182 633 187 645 182 C655 178 663 168 670 157"/>
+    <!-- e -->
+    <path d="M670 151 C689 153 706 146 708 132 C710 121 700 115 690 120 C676 128 671 154 680 169 C689 184 712 181 728 160"/>
+    <!-- t -->
+    <path d="M738 86 C736 113 731 148 731 167 C731 179 740 182 751 175 C760 170 768 163 774 155 M716 120 C738 119 758 116 774 112"/>
+    <!-- t -->
+    <path d="M787 82 C785 111 780 148 780 167 C780 179 789 182 800 175 C809 170 817 163 823 155 M766 117 C787 116 807 113 823 109"/>
+    <!-- e -->
+    <path d="M824 151 C843 153 860 146 862 132 C864 121 854 115 844 120 C830 128 825 154 834 169 C843 184 867 181 884 159"/>
+  </g>
+
+  <!-- A restrained finishing flourish keeps the mark light rather than ornamental. -->
+  <path d="M885 159 C914 143 941 147 956 163 C969 177 984 181 1003 174"
+        fill="none" stroke="#B9A7E8" stroke-opacity="0.62" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="1017" cy="170" r="5" fill="#F6BDD5" fill-opacity="0.88"/>
+</svg>
