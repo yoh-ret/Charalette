@@ -11,8 +11,9 @@ Charaletteは、キャラクターを起点に衣装・プリセット・タグ�
 
 - GitHub Pages: https://yoh-ret.github.io/Prompt_Palette/
 - Browser title: `Charalette`
-- Current Prototype: `Prompt_Palette_Prototype_v9_9.html`
-- Current Master: `Prompt_Palette_Master_v10.xlsx`（883 tags / 18 categories / 113 Presets）
+- Current Prototype: `Prompt_Palette_Prototype_v10_0.html`
+- Current Master: `Prompt_Palette_Master_v11.xlsx`（1138 tags / 18 categories / 142 Presets）
+- Runtime Data: `prompt_palette_tags_v10.json` / `prompt_palette_categories_v10.json` / `prompt_palette_presets_v2.json`
 
 ## Current MVP Features
 
@@ -77,7 +78,8 @@ Prompt_Palette/
 ├── README.md
 ├── index.html
 └── prototype/
-    └── Prompt_Palette_Prototype_v9_9.html
+    ├── Prompt_Palette_Prototype_v9_9.html
+    └── Prompt_Palette_Prototype_v10_0.html
 ```
 
 ## Brand Assets
