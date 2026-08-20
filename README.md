@@ -9,9 +9,10 @@ Charaletteは、キャラクターを起点に衣装・プリセット・タグ�
 
 ## Public App
 
-- GitHub Pages: https://yoh-ret.github.io/Prompt_Palette/
+- GitHub Pages: https://yoh-ret.github.io/Charalette/
+- Repository: https://github.com/yoh-ret/Charalette
 - Browser title: `Charalette`
-- Current Prototype: `Prompt_Palette_Prototype_v10_0.html`
+- Current Prototype: `Prompt_Palette_Prototype_v10_1.html`
 - Current Master: `Prompt_Palette_Master_v11.xlsx`（1138 tags / 18 categories / 142 Presets）
 - Runtime Data: `prompt_palette_tags_v10.json` / `prompt_palette_categories_v10.json` / `prompt_palette_presets_v2.json`
 
@@ -46,16 +47,16 @@ Character、Outfit、My Preset、Favorite、品質タグ設定、Thumbnailは端
 
 ## Compatibility
 
-公開ブランドは **Charalette（キャラレット）** です。内部プロジェクト名および既存成果物識別子は互換性のため維持します。
+公開ブランドは **Charalette（キャラレット）** です。公開repositoryとGitHub Pages URLはCharaletteへ統一し、内部プロジェクト名および既存成果物識別子は互換性のため維持します。
 
-- Repository: `yoh-ret/Prompt_Palette`
+- Repository: `yoh-ret/Charalette`
 - Prototype filename: `Prompt_Palette_Prototype_vN_N.html`
 - LocalStorage namespace: `promptPalette.v7_5.*`
 - Backup format: `prompt-palette-backup`
 - Backup schema version: `1`
 - Backup filename: `Prompt_Palette_Backup_YYYY-MM-DD.json`
 
-ブランド変更によるStorage migration、Master / JSONの改名、Backup schema変更は行いません。
+repository名変更によるStorage migration、Master / JSONの改名、Backup schema変更は行いません。
 
 ## Source of Truth
 
@@ -66,7 +67,7 @@ Character、Outfit、My Preset、Favorite、品質タグ設定、Thumbnailは端
 ## Repository Structure
 
 ```text
-Prompt_Palette/
+Charalette/
 ├── assets/
 │   ├── charalette-logo.svg
 │   ├── favicon.svg
@@ -78,8 +79,8 @@ Prompt_Palette/
 ├── README.md
 ├── index.html
 └── prototype/
-    ├── Prompt_Palette_Prototype_v9_9.html
-    └── Prompt_Palette_Prototype_v10_0.html
+    ├── Prompt_Palette_Prototype_v10_0.html
+    └── Prompt_Palette_Prototype_v10_1.html
 ```
 
 ## Brand Assets
@@ -109,4 +110,4 @@ LICENSEは設定していません。ソースコードおよび内部辞書・�
 
 ## Public Release Readiness
 
-faviconとOGP画像は公開実装へ反映済みです。独自ドメインとrepository名変更は未決定であり、現行MVPの公開には含めていません。
+favicon、Apple Touch Icon、OGP画像、canonical、Open Graph URLは新しいCharalette Pages URLへ反映済みです。repository名とPages URLのCharalette統一は完了しています。独自ドメインは現行MVPの公開には含めていません。
