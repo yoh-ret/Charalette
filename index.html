@@ -1833,7 +1833,7 @@ button.library-card-main{cursor:pointer;border-radius:12px}
 
 </style>
 </head>
-<body data-prototype-version="10.3" data-master-version="11" data-tags-version="10" data-categories-version="10" data-presets-version="2">
+<body data-prototype-version="10.4" data-master-version="11" data-tags-version="10" data-categories-version="10" data-presets-version="2">
 
 <div class="app" id="app">
   <section id="topView" class="view active">
@@ -1987,7 +1987,7 @@ button.library-card-main{cursor:pointer;border-radius:12px}
     <main class="main">
       <div class="page-topbar centered">
         <button class="small-btn back-btn" id="characterFormBackBtn">← Home</button>
-        <h1 class="page-title-center" id="characterFormTitle">Character設定</h1>
+        <h1 class="page-title-center" id="characterFormTitle">キャラクター設定</h1>
       </div>
       <div class="card character-form-card">
         <label class="sheet-label" for="characterNameInput">Character名</label>
@@ -2030,7 +2030,7 @@ button.library-card-main{cursor:pointer;border-radius:12px}
     <main class="main">
       <div class="page-topbar centered">
         <button class="small-btn back-btn" id="outfitLibraryBackBtn">← Top</button>
-        <h1 class="page-title-center" id="outfitLibraryTitle">Outfit Library</h1>
+        <h1 class="page-title-center" id="outfitLibraryTitle">アウトフィット一覧</h1>
       </div>
       <div class="outfit-toolbar"><button class="button primary" id="newOutfitBtn">＋ Outfitを追加</button></div>
       <nav class="outfit-jumps" id="outfitCategoryJumps" aria-label="Outfit Categoryジャンプ"></nav>
@@ -2097,7 +2097,7 @@ button.library-card-main{cursor:pointer;border-radius:12px}
     <main class="main">
       <div class="page-topbar centered">
         <button class="small-btn back-btn" onclick="goTop()">← Top</button>
-        <h1 class="page-title-center">Settings</h1>
+        <h1 class="page-title-center">設定</h1>
       </div>
       <div class="card settings-card">
         <h2 class="settings-section-title">生成設定</h2>
@@ -2265,7 +2265,7 @@ const PRESETS = [{"id":"preset_builtin_001","displayName":"✨ 透明感アニ�
 const PROMPT_HEADERS = [{"id": "pixai_standard", "displayName": "PixAI Standard", "description": "PixAIで標準的に使うPrompt Header。品質を安定させる基本セット。", "prompt": "masterpiece, best quality, high quality", "sortOrder": 10, "hidden": false}, {"id": "pixai_face", "displayName": "PixAI Face", "description": "顔・ポートレートを高品質に出したい時のHeader。必要に応じて使用。", "prompt": "masterpiece, best quality, ultra detailed", "sortOrder": 20, "hidden": false}, {"id": "none", "displayName": "None", "description": "Prompt Headerを使用しない。", "prompt": "", "sortOrder": 999, "hidden": false}];
 
 const FIXED_PROMPT_HEADER = "masterpiece, best quality, very aesthetic, absurdres, ultra-detailed, intricate details, sharp focus";
-const APP_VERSION = "10.3";
+const APP_VERSION = "10.4";
 const BACKUP_FORMAT = "prompt-palette-backup";
 const BACKUP_SCHEMA_VERSION = 1;
 const STORAGE = {
@@ -2595,7 +2595,7 @@ function returnToBuilderFromPresetLibrary(){renderEdit($("search").value.trim())
 function backFromPresetLibrary(){if(libraryOrigin==="builder"){returnToBuilderFromPresetLibrary();return}libraryOrigin==="characterHome"?goHome():goTop()}
 function goOutfitLibrary(mode="normal",origin="top"){
   outfitLibraryMode=mode;outfitOrigin=origin;
-  $("outfitLibraryTitle").textContent=mode==="select"?"Outfitを選択":"Outfit Library";
+  $("outfitLibraryTitle").textContent=mode==="select"?"アウトフィットを選択":"アウトフィット一覧";
   $("outfitLibraryBackBtn").textContent=mode==="select"?"← Builder":origin==="characterHome"?"← Home":"← Top";
   renderOutfitLibrary();show("outfitLibraryView")
 }
@@ -2784,7 +2784,7 @@ function renderHome(){
 function setCharacterNameError(showError){$("characterNameInput").classList.toggle("error",showError);$("characterNameError").classList.toggle("show",showError)}
 function renderCharacterForm(){
   const create=characterFormMode==="create",ch=create?null:characterById(characterFormTargetId);if(!create&&!ch){goTop();return}
-  $("characterFormTitle").textContent=create?"Character追加":"Character設定";$("characterFormBackBtn").textContent=create?"← Top":"← Home";$("saveCharacterBtn").textContent=create?"Characterを追加":"保存";$("characterDuplicateZone").style.display=create?"none":"block";$("characterDeleteZone").style.display=create?"none":"block";
+  $("characterFormTitle").textContent=create?"キャラクター追加":"キャラクター設定";$("characterFormBackBtn").textContent=create?"← Top":"← Home";$("saveCharacterBtn").textContent=create?"Characterを追加":"保存";$("characterDuplicateZone").style.display=create?"none":"block";$("characterDeleteZone").style.display=create?"none":"block";
   thumbnailSelectionRequestId++;characterFormThumbnail=normalThumbnail(ch?.thumbnail);$("characterNameInput").value=ch?.displayName||"";$("characterIconInput").value=create?"":ch?.icon||"";$("characterThumbnailInput").value="";$("characterBasePromptInput").value=ch?.basePrompt||"";$("characterNegativePromptInput").value=ch?.negativePrompt||"";$("characterDescriptionInput").value=ch?.shortDescription||"";$("characterMemoInput").value=ch?.memo||"";$("characterFavoriteInput").checked=Boolean(ch?.favorite);renderCharacterThumbnailPreview();setCharacterNameError(false)
 }
 function characterFormValues(){return {displayName:$("characterNameInput").value.trim(),icon:$("characterIconInput").value.trim()||"✨",basePrompt:$("characterBasePromptInput").value.trim(),negativePrompt:$("characterNegativePromptInput").value.trim(),shortDescription:$("characterDescriptionInput").value.trim(),memo:$("characterMemoInput").value.trim(),favorite:$("characterFavoriteInput").checked}}
