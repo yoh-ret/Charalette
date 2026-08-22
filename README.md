@@ -12,7 +12,7 @@ Charaletteは、キャラクターを起点に衣装・プリセット・タグ�
 - GitHub Pages: https://yoh-ret.github.io/Charalette/
 - Repository: https://github.com/yoh-ret/Charalette
 - Browser title: `Charalette`
-- Current Prototype: `Prompt_Palette_Prototype_v10_2.html`
+- Current Prototype: `Prompt_Palette_Prototype_v10_3.html`
 - Current Master: `Prompt_Palette_Master_v11.xlsx`（1138 tags / 18 categories / 142 Presets）
 - Runtime Data: `prompt_palette_tags_v10.json` / `prompt_palette_categories_v10.json` / `prompt_palette_presets_v2.json`
 
@@ -26,7 +26,7 @@ Charaletteは、キャラクターを起点に衣装・プリセット・タグ�
 - Positive / Negative Prompt Preview・Copy
 - 品質タグ ON / OFF・本文編集
 - Backup / Restore
-- 既存機能はiPhone Safariで実機受入済み。v10.2追加Preset導線は実機確認待ち
+- 既存機能はiPhone Safariで実機受入済み。v10.3 Preset Libraryカテゴリチップ折り返し表示は実機確認待ち
 
 ## Prompt Generation Order
 
@@ -81,7 +81,7 @@ Charalette/
 └── prototype/
     ├── Prompt_Palette_Prototype_v10_0.html
     ├── Prompt_Palette_Prototype_v10_1.html
-    └── Prompt_Palette_Prototype_v10_2.html
+    └── Prompt_Palette_Prototype_v10_3.html
 ```
 
 ## Brand Assets
