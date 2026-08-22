@@ -81,6 +81,7 @@ Charalette/
 └── prototype/
     ├── Prompt_Palette_Prototype_v10_0.html
     ├── Prompt_Palette_Prototype_v10_1.html
+    ├── Prompt_Palette_Prototype_v10_2.html
     └── Prompt_Palette_Prototype_v10_3.html
 ```
 
